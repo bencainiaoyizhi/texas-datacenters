@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="A nightly US AI data center news brief plus a map and register of 35 Texas sites.">
+<style>html{color-scheme:light dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Texas AI Data Center Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#EAE9E4; --surface:#F5F4F0; --surface-2:#E1DFD7;
+  --ink:#191C19; --ink-2:#4A4F49; --ink-3:#7C817A;
+  --rule:#CFCEC5; --rule-soft:#DCDAD2;
+  --county:#D6D4CB; --land:#E3E1D9;
+  --c1:#D55E00; --c2:#0072B2; --c3:#009E73;
+  --shadow:0 1px 2px rgba(25,28,25,.07), 0 8px 24px -14px rgba(25,28,25,.30);
+  --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --cond:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#12161A; --surface:#1A2027; --surface-2:#222A31;
+    --ink:#E5E9E6; --ink-2:#A9B1AD; --ink-3:#79817D;
+    --rule:#2C343A; --rule-soft:#232A30;
+    --county:#28323A; --land:#1A2229;
+    --c1:#D3701F; --c2:#3F86D8; --c3:#12A177;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12161A; --surface:#1A2027; --surface-2:#222A31;
+  --ink:#E5E9E6; --ink-2:#A9B1AD; --ink-3:#79817D;
+  --rule:#2C343A; --rule-soft:#232A30;
+  --county:#28323A; --land:#1A2229;
+  --c1:#D3701F; --c2:#3F86D8; --c3:#12A177;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -16px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+     font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1220px;margin:0 auto;padding:34px 22px 72px}
+h1,h2,h3{font-family:var(--cond);font-weight:700;text-wrap:balance;margin:0;letter-spacing:.005em}
+a{color:inherit}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+         color:var(--ink-3);display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+.eyebrow b{color:var(--c1);font-weight:500}
+header.mast{border-top:2px solid var(--ink);padding-top:14px;display:flex;flex-direction:column;gap:13px}
+h1{font-size:clamp(30px,4.6vw,50px);line-height:1.06;letter-spacing:-.018em}
+.standfirst{max-width:66ch;color:var(--ink-2);font-size:15.5px}
+.standfirst strong{color:var(--ink);font-weight:600}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1px;
+       background:var(--rule);border:1px solid var(--rule);margin:28px 0 8px}
+.stat{background:var(--paper);padding:14px 16px 15px;display:flex;flex-direction:column;gap:3px}
+.stat .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.stat .v{font-family:var(--cond);font-size:29px;font-weight:700;line-height:1.05;
+         font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.stat .v span{font-size:15px;font-weight:600;color:var(--ink-2);margin-left:3px}
+.stat .n{font-size:12.5px;color:var(--ink-3);line-height:1.4}
+
+.mapblock{margin-top:34px}
+.secthead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;
+          border-bottom:1px solid var(--rule);padding-bottom:9px;margin-bottom:16px}
+.secthead h2{font-size:20px}
+.secthead .note{font-size:12.5px;color:var(--ink-3);font-family:var(--mono)}
+.mapshell{position:relative;background:var(--surface);border:1px solid var(--rule);
+          border-radius:3px;overflow-x:auto;box-shadow:var(--shadow)}
+.mapshell svg#map{display:block;width:100%;min-width:1080px;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:center;padding:14px 18px;
+        border-top:1px solid var(--rule);background:var(--surface)}
+.lgroup{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.lgroup .lt{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;
+      border:1px solid transparent;border-radius:2px;padding:2px 7px 2px 4px;
+      background:none;font-family:inherit;color:var(--ink);line-height:1.3}
+.chip:hover{border-color:var(--rule)}
+.chip:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.chip[aria-pressed="false"]{opacity:.36}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.dot.hollow{background:none!important}
+.skey svg{width:auto;min-width:200px;height:56px}
+
+.tt{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;z-index:5;
+    background:var(--paper);border:1px solid var(--ink-2);border-radius:2px;padding:9px 11px;
+    max-width:300px;box-shadow:var(--shadow);font-size:12.5px;line-height:1.5}
+.tt .n{font-family:var(--cond);font-weight:700;font-size:14.5px;line-height:1.25;margin-bottom:3px}
+.tt .g{font-family:var(--mono);font-size:12px;color:var(--c1);font-weight:500}
+.tt .m{color:var(--ink-2);margin-top:4px;font-style:italic}
+.tt dl{margin:6px 0 0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12px}
+.tt dt{color:var(--ink-3);font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding-top:2.5px}
+.tt dd{margin:0;color:var(--ink)}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:3px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:900px;font-size:13.5px}
+thead th{position:sticky;top:0;background:var(--surface-2);text-align:left;font-family:var(--mono);
+         font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);
+         padding:9px 12px;border-bottom:1px solid var(--rule);white-space:nowrap;font-weight:500}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+tbody tr.rgn td{background:var(--surface-2);font-family:var(--mono);font-size:10.5px;
+                letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);padding:7px 12px}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.dim{opacity:.26}
+td.cd{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);width:34px;padding-right:0}
+td.nm{font-weight:600;min-width:150px}
+td.nm .sub{display:block;font-weight:400;color:var(--ink-3);font-size:12px;line-height:1.35;font-style:italic}
+td.gw{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500}
+td.gw .kd{display:block;font-size:10.5px;color:var(--ink-3);font-weight:400;letter-spacing:.02em;white-space:nowrap}
+td.loc{color:var(--ink-2);min-width:120px}
+td.op{min-width:160px}
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;
+     padding:1px 6px;border-radius:2px;border:1px solid currentColor;white-space:nowrap}
+.tag.live{color:var(--c3)} .tag.build{color:var(--c1)} .tag.plan{color:var(--ink-3)}
+.cbar{display:inline-block;width:3px;height:13px;border-radius:1px;vertical-align:-2px;margin-right:7px}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:22px;margin-top:18px}
+.pnl{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:16px 18px 18px}
+.pnl h3{font-size:15.5px;margin-bottom:8px}
+.pnl h3 em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--ink-3);letter-spacing:.1em;
+           text-transform:uppercase;display:block;margin-bottom:3px}
+.pnl p{margin:0 0 9px;font-size:13.8px;color:var(--ink-2)}
+.pnl p:last-child{margin-bottom:0}
+.pnl strong{color:var(--ink);font-weight:600}
+.callout{border-left:3px solid var(--c1);background:var(--surface);padding:14px 18px;margin-top:4px;border-radius:0 3px 3px 0}
+.callout p{margin:0;font-size:13.8px;color:var(--ink-2)}
+ol.notes{margin:14px 0 0;padding-left:1.3em;font-size:13.8px;color:var(--ink-2)}
+ol.notes li{margin-bottom:8px}
+ol.notes li:last-child{margin-bottom:0}
+.srcs{font-size:12.5px;color:var(--ink-3);line-height:1.7;columns:2;column-gap:34px}
+.srcs a{color:var(--ink-2);text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:2px}
+.srcs a:hover{color:var(--c2);text-decoration-color:currentColor}
+footer{margin-top:44px;border-top:1px solid var(--rule);padding-top:14px;
+       font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--ink-3);
+       display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+/* ---- capacity-basis chart ---- */
+.basis{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:18px 20px 20px;margin-top:20px}
+.basis .hd{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:4px}
+.basis h3{font-size:16px}
+.basis .lede{font-size:13.5px;color:var(--ink-2);max-width:70ch;margin:0 0 16px}
+.hero{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 18px;
+      padding-bottom:16px;border-bottom:1px solid var(--rule)}
+.hero .big{font-family:var(--cond);font-weight:700;font-size:44px;line-height:1;letter-spacing:-.02em;
+           font-variant-numeric:tabular-nums}
+.hero .of{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);letter-spacing:.04em}
+.hero .of b{color:var(--ink-2);font-weight:500}
+.brow{display:grid;grid-template-columns:150px 1fr 74px;gap:0 14px;align-items:center;margin-bottom:9px}
+.brow .rl{font-size:13px;color:var(--ink-2);line-height:1.25}
+.brow .rt{font-family:var(--mono);font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+.bar{display:flex;height:22px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.seg{height:100%}
+.seg.it{background:var(--ink)}
+.seg.plan{background:repeating-linear-gradient(135deg,var(--rule) 0 3px,transparent 3px 7px),var(--surface-2);
+          box-shadow:inset 0 0 0 1px var(--ink-3)}
+.seg.cl{background:var(--ink-3);opacity:.55}
+.blegend{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:14px;padding-top:13px;border-top:1px solid var(--rule-soft);
+         font-size:12.5px;color:var(--ink-2);align-items:center}
+.blegend span{display:inline-flex;align-items:center;gap:7px}
+.blegend i{width:16px;height:12px;border-radius:2px;display:inline-block;flex:none}
+.basis .foot{font-size:12.5px;color:var(--ink-3);margin:14px 0 0;max-width:74ch}
+
+/* ---- count-scope panel ---- */
+.scopes{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;margin:16px 0 0}
+.scope{border:1px solid var(--rule);border-radius:3px;padding:14px 15px;background:var(--surface)}
+.scope .sv{font-family:var(--cond);font-weight:700;font-size:30px;line-height:1;letter-spacing:-.015em;
+           font-variant-numeric:tabular-nums;margin-bottom:2px}
+.scope .sk{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px}
+.scope .sn{font-weight:600;font-size:13.5px;margin-bottom:4px}
+.scope .sd{font-size:12.5px;color:var(--ink-2);line-height:1.45}
+.scope.mine{border-color:var(--ink);border-width:1.5px}
+.scope.mine .sv{color:var(--c1)}
+
+/* ---- site nav ---- */
+.nav{display:flex;gap:2px;flex-wrap:wrap;margin:26px 0 0;border-bottom:1px solid var(--rule);
+     position:sticky;top:0;background:var(--paper);z-index:10;padding-top:2px}
+.nv{font-family:var(--cond);font-size:14.5px;font-weight:600;letter-spacing:.01em;
+    background:none;border:none;border-bottom:2px solid transparent;color:var(--ink-3);
+    padding:9px 14px 8px;cursor:pointer;margin-bottom:-1px;line-height:1.3}
+.nv:hover{color:var(--ink)}
+.nv[aria-current="true"]{color:var(--ink);border-bottom-color:var(--c1)}
+.nv:focus-visible{outline:2px solid var(--c2);outline-offset:-2px}
+
+/* ---- daily brief ---- */
+.briefbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:space-between;
+          padding:11px 14px;background:var(--surface);border:1px solid var(--rule);border-radius:3px;margin-bottom:20px}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fb{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+    padding:4px 10px;border:1px solid var(--rule);border-radius:2px;background:none;color:var(--ink-2);cursor:pointer}
+.fb:hover{border-color:var(--ink-3)}
+.fb[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.fb:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.feedstatus{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.04em;display:flex;align-items:center;gap:7px}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--c3);flex:none}
+.pulse.static{background:var(--ink-3)}
+
+.day{margin-bottom:30px}
+.dayhead{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--rule);
+         padding-bottom:6px;margin-bottom:2px;position:sticky;top:41px;background:var(--paper);z-index:5}
+.dayhead h3{font-size:16px;letter-spacing:-.005em}
+.dayhead .cnt{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.06em}
+.item{display:grid;grid-template-columns:96px 1fr;gap:0 18px;padding:15px 0 16px;border-bottom:1px solid var(--rule-soft)}
+.item:last-child{border-bottom:none}
+.item .cat{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+           padding-top:3px;display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+.item .cat b{font-weight:500;display:inline-flex;align-items:center;gap:5px}
+.item .cat i{width:7px;height:7px;border-radius:1px;flex:none;display:inline-block}
+.txchip{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--c1);
+        border:1px solid currentColor;border-radius:2px;padding:0 4px;font-style:normal}
+.item h4{font-family:var(--cond);font-size:17px;font-weight:700;margin:0 0 5px;line-height:1.25;letter-spacing:-.005em}
+.item p{margin:0 0 7px;font-size:14px;color:var(--ink-2);max-width:72ch}
+.item .meta{font-family:var(--mono);font-size:11px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:5px 14px;align-items:center}
+.item .meta a{color:var(--ink-2);text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:2px}
+.item .meta a:hover{color:var(--c2)}
+.tk{border:1px solid var(--rule);border-radius:2px;padding:0 5px;letter-spacing:.06em}
+.empty{padding:34px 18px;text-align:center;color:var(--ink-3);font-size:14px;
+       border:1px dashed var(--rule);border-radius:3px}
+@media (max-width:640px){ .srcs{columns:1} .wrap{padding:24px 15px 56px}
+  .item{grid-template-columns:1fr;gap:8px} .item .cat{flex-direction:row;padding-top:0}
+  .dayhead{top:auto;position:static} .nav{position:static} }
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">
+    <span>Research note · Data current to 2026-09-02</span>
+    <span><b>Mixed measurement basis</b> — read the notes</span>
+  </div>
+  <h1>Texas AI Data Center Atlas</h1>
+  <p class="standfirst">Texas has overtaken Northern Virginia as the largest data center build-out on earth — and since <strong>3 August 2026</strong> its interconnection queue has been frozen pending a statewide audit. This site tracks both: a nightly <strong>US-wide news brief</strong>, and a map of <strong>35 Texas sites</strong> where bubble area is announced capacity, color is the camp behind it, and solid vs. dashed separates <strong>contracted IT load</strong> from <strong>master-plan or generation ceilings</strong>. Published gigawatt figures mix all three; adding them together overstates the state by roughly 2–3×.</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><span class="k">ERCOT interconnection queue</span><span class="v">474<span>GW</span></span><span class="n">~90% is data centers — more than 5× ERCOT's record peak demand</span></div>
+  <div class="stat"><span class="k">Queue status since Aug 3</span><span class="v" style="color:var(--c1)">PAUSED</span><span class="n">Statewide audit ordered by Gov. Abbott; BNEF sees 49.8 GW delayed and $8–15B of cost</span></div>
+  <div class="stat"><span class="k">DFW under construction</span><span class="v">765<span>MW</span></span><span class="n">95% preleased; another 3.7 GW planned but not started</span></div>
+  <div class="stat"><span class="k">US primary markets building</span><span class="v">7,481<span>MW</span></span><span class="n">1.4% vacancy — a record low; 80.4% preleased (CBRE H1 2026)</span></div>
+</div>
+
+
+<nav class="nav" id="nav" aria-label="Sections">
+  <button class="nv" data-view="brief" aria-current="true">Daily Brief</button>
+  <button class="nv" data-view="map">Map</button>
+  <button class="nv" data-view="register">Site Register</button>
+  <button class="nv" data-view="notes">Analysis &amp; Notes</button>
+  <button class="nv" data-view="sources">Sources</button>
+</nav>
+
+<section class="mapblock" id="v-brief">
+  <div class="secthead">
+    <h2>US Data Center Daily Brief</h2>
+    <span class="note">refreshed nightly at 9:00 PM Central</span>
+  </div>
+  <div class="briefbar">
+    <div class="filters" id="filters">
+      <button class="fb" data-f="all" aria-pressed="true">All</button>
+      <button class="fb" data-f="tx" aria-pressed="false">Texas only</button>
+      <button class="fb" data-f="projects" aria-pressed="false">Projects</button>
+      <button class="fb" data-f="leases" aria-pressed="false">Leases</button>
+      <button class="fb" data-f="power" aria-pressed="false">Power &amp; policy</button>
+      <button class="fb" data-f="markets" aria-pressed="false">Markets</button>
+    </div>
+    <div class="feedstatus" id="feedstatus"><span class="pulse static"></span><span id="feedtext">loading…</span></div>
+  </div>
+  <div id="feed"></div>
+</section>
+
+<section class="mapblock" id="v-map" hidden>
+  <div class="secthead">
+    <h2>Where the gigawatts are going</h2>
+    <span class="note">click legend to filter · hover a site for detail</span>
+  </div>
+  <div class="mapshell" id="mapshell">
+    <svg id="map" viewBox="0 0 1300 800" role="img" aria-label="Map of AI data center sites across Texas"></svg>
+    <div class="tt" id="tt"></div>
+  </div>
+  <div class="legend">
+    <div class="lgroup"><span class="lt">Camp</span>
+      <button class="chip" data-camp="1" aria-pressed="true"><span class="dot" style="background:var(--c1)"></span>OpenAI / Stargate</button>
+      <button class="chip" data-camp="2" aria-pressed="true"><span class="dot" style="background:var(--c2)"></span>Hyperscaler self-build</button>
+      <button class="chip" data-camp="3" aria-pressed="true"><span class="dot" style="background:var(--c3)"></span>Neoclouds, AI labs &amp; independents</button>
+    </div>
+    <div class="lgroup"><span class="lt">Basis</span>
+      <span class="chip" style="cursor:default"><span class="dot" style="background:var(--ink-2)"></span>Contracted IT load</span>
+      <span class="chip" style="cursor:default"><span class="dot hollow" style="border:2px dashed var(--ink-2)"></span>Master plan / generation cap</span>
+      <span class="chip" style="cursor:default"><span class="dot" style="background:var(--ink-2);border-radius:2px"></span>Metro or county cluster</span>
+    </div>
+    <div class="lgroup skey"><span class="lt">Scale</span>
+      <svg viewBox="0 0 200 62" aria-hidden="true">
+        <circle cx="32" cy="30.8" r="27.2" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/>
+        <circle cx="32" cy="44.1" r="13.9" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/>
+        <circle cx="32" cy="49.1" r="8.9" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/>
+        <line x1="32" y1="3.6" x2="74" y2="3.6" stroke="currentColor" stroke-width=".7" opacity=".35"/>
+        <line x1="32" y1="30.2" x2="74" y2="30.2" stroke="currentColor" stroke-width=".7" opacity=".35"/>
+        <line x1="32" y1="40.2" x2="74" y2="40.2" stroke="currentColor" stroke-width=".7" opacity=".35"/>
+        <text x="78" y="7.2" font-family="var(--mono)" font-size="10" fill="currentColor">11 GW</text>
+        <text x="78" y="33.8" font-family="var(--mono)" font-size="10" fill="currentColor">2 GW</text>
+        <text x="78" y="43.8" font-family="var(--mono)" font-size="10" fill="currentColor">0.5 GW</text>
+      </svg>
+    </div>
+  </div>
+  <div class="basis">
+    <div class="hd"><h3>How much of the headline is actually contracted</h3></div>
+    <p class="lede">Every capacity figure on this map added together, split by what the number actually measures. This is the arithmetic behind the warning in the notes — and the reason a single summed gigawatt total for Texas is not a meaningful number.</p>
+    <div class="hero">
+      <span class="big">13%</span>
+      <span class="of"><b>7.7 GW</b> of the <b>59.6 GW</b> announced across these 35 sites is contracted IT load.<br>The other 51.9 GW is a master plan, a generation permit, or a metro roll-up.</span>
+    </div>
+    <div id="basisrows"></div>
+    <div class="blegend">
+      <span><i class="seg it" style="height:12px"></i>Contracted IT load</span>
+      <span><i class="seg plan" style="height:12px"></i>Master plan / generation cap</span>
+      <span><i class="seg cl" style="height:12px"></i>Metro or county cluster</span>
+    </div>
+    <p class="foot">Six sites disclose no capacity and are excluded from the totals. Regions are the same groupings used in the site register.</p>
+  </div>
+</section>
+
+<section class="mapblock" id="v-register" hidden>
+  <div class="secthead"><h2>Site register</h2><span class="note">grouped by region · capacity column states its basis</span></div>
+  <div class="tablewrap">
+    <table id="tbl">
+      <thead><tr>
+        <th></th><th>Site</th><th>Capacity</th><th>County / place</th><th>Developer &amp; tenant</th><th>Power</th><th>Status</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="mapblock" id="v-notes" hidden>
+  <div class="secthead"><h2>What the map says</h2><span class="note">my read, not reported fact</span></div>
+  <div class="cols">
+    <div class="pnl">
+      <h3><em>Read 01</em>Power is the product, not real estate</h3>
+      <p>The binding constraint in Texas is <strong>time-to-power</strong>. ERCOT's large-load queue went from 63 GW to 226 GW in a year while the grid added roughly 23 GW of generation. Nobody can wait in that line.</p>
+      <p>So almost every gigawatt-scale project now arrives with its own power plant: Chevron's 2.67 GW of gas for Microsoft at Pecos, Pacifico's 7.65 GW permit in Pecos County with Amazon buying the site and the power, Fermi's 6 GW of gas plus four planned AP1000s, Anthropic's 710 MW behind-the-meter plant in Bastrop County. <strong>The spend lands on turbines, EPC and pipe as much as on silicon.</strong></p>
+    </div>
+    <div class="pnl">
+      <h3><em>Read 02</em>There are two Texases on this map</h3>
+      <p>East of I-35 — DFW, Austin, San Antonio — is <strong>inference and enterprise cloud</strong>: close to users and fiber, sold by the megawatt in a colocation market (DFW: 765 MW building, 95% preleased, now ranked the world's largest data center market).</p>
+      <p>West — the Permian, the Panhandle, the Rolling Plains — is <strong>training</strong>: cheap land, cheap gas, next to generation, single campuses of 1–2 GW, and far from users. The two are valued on different logic. Ranking them on one gigawatt leaderboard is a category error.</p>
+    </div>
+    <div class="pnl">
+      <h3><em>Read 03</em>The state hit the brakes, and that is the story</h3>
+      <p>On 3 August 2026 Governor Abbott ordered an audit of every data center in the ERCOT queue — tax incentives, public money, load, on-site generation, water sourcing, cooling, community impact, ownership. ERCOT missed its 7 August Batch Zero deadline and asked the PUCT for a good-cause exemption. <strong>There is no published end date.</strong></p>
+      <p>BNEF puts the exposure at <strong>49.8 GW of delayed load — nearly 20% of the 253 GW US pipeline — and $8–15B of cost by Q1 2027</strong>, with the review possibly running into the 2027 legislative session. Abbott faces reelection in November 2026, so read the timing accordingly. Projects with their own generation are the least exposed; grid-dependent ones in water-short or residential-adjacent counties are the most. That gap between announced GW and energized GW just got wider.</p>
+      </div>
+  </div>
+</section>
+
+<section class="mapblock" id="v-notes2" hidden>
+  <div class="secthead"><h2>How to read the numbers</h2><span class="note">required before quoting any figure here</span></div>
+  <p style="font-size:14px;color:var(--ink-2);max-width:74ch;margin:0 0 2px"><strong style="color:var(--ink)">First, how many data centers Texas has — there is no single answer.</strong> Three public sources count three different things, and none of them is an official statewide census. dcmap.us states the problem plainly: <em>&ldquo;there is no standard unit for a data center. A campus, a building and a hall can each be counted as one.&rdquo;</em></p>
+  <div class="scopes">
+    <div class="scope">
+      <div class="sk">Tax registry</div><div class="sv">~125–160</div>
+      <div class="sn">Texas Comptroller</div>
+      <div class="sd">Two lists: qualifying data centers plus qualifying large data center projects. <strong>Only projects that registered for the sales-tax exemption</strong> — not a census. The tables change as registrations are added, and two reads a few minutes apart returned different row counts, so no exact figure is claimed here.</div>
+    </div>
+    <div class="scope">
+      <div class="sk">Project tracker</div><div class="sv">477</div>
+      <div class="sn">Cleanview</div>
+      <div class="sd">137 operating and 339 planned, across 94 developers, last updated August 2026. Carries 7,072 MW operating and 96,551 MW planned — capacity from public filings and reporting, mixed bases.</div>
+    </div>
+    <div class="scope">
+      <div class="sk">Facility tracker</div><div class="sv">606</div>
+      <div class="sn">dcmap.us</div>
+      <div class="sd">Texas records as of 2 September 2026, the largest of any state; the number drifts as records are added. Nationally the same database holds 3,359 operational, 378 under construction, 1,042 planned and 69 paused.</div>
+    </div>
+    <div class="scope mine">
+      <div class="sk">This atlas</div><div class="sv">35</div>
+      <div class="sn">Hand-verified AI sites</div>
+      <div class="sd">Deliberately the narrowest scope: <strong>AI-specific</strong> campuses and metro clusters, each traced to a named operator, tenant, power arrangement and source. Not a count of every data center in Texas.</div>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:22px">
+    <p><strong>Second, not every gigawatt on this map is the same gigawatt.</strong> Public reporting mixes at least three bases, and summing them is why most published "Texas has XX GW" figures run high.</p>
+  </div>
+  <ol class="notes">
+    <li><strong>The queue is frozen.</strong> Since 3 August 2026 ERCOT has paused new large-load interconnection processing pending the state audit, with no published end date. Every "targeted 2027/2028" date on this page assumes the queue reopens; treat those dates as the operator's intent, not a schedule.</li>
+    <li><strong>Contracted IT / critical load (solid circles)</strong> — what the halls can actually draw. The only basis that compares like for like: Stargate Abilene 1.2 GW, Meta El Paso 1 GW, Galaxy's first Helios phase 133 MW, Aligned Caprock 540 MW.</li>
+    <li><strong>On-site generation capacity (dashed circles)</strong> — nameplate of the power plant, not the compute. GW Ranch's 7.65 GW is a permit for 35 gas turbines; Chevron's 2.67 GW backs a Microsoft campus of roughly 2 GW. <strong>Generation typically runs 20–40% above IT load.</strong></li>
+    <li><strong>Master-plan ceiling (dashed circles)</strong> — the theoretical maximum for the land, and the least likely to be built. Fermi's 11 GW, Nexus Hubbard's 7.7 GW, Data City's 5 GW and Galaxy's 3.6 GW are all ceilings; first phases under construction are about 1.1 GW, 500 MW, 300 MW and 393 MW respectively.</li>
+    <li><strong>Coordinates are approximate.</strong> Most projects disclose only a county; markers sit at the county seat or the disclosed parcel centroid, so error can reach 10–30 km. Not for siting or transaction use.</li>
+    <li><strong>Two sites are outside ERCOT.</strong> Meta El Paso sits in the Western Interconnection (El Paso Electric) and parts of the Panhandle sit in SPP. They don't consume ERCOT queue positions — that's a deliberate strategy, not a footnote.</li>
+    <li><strong>Sources disagree.</strong> Vantage announced Frontier at 1.4 GW while Epoch AI tracks it at 2.0 GW; Blackridge puts the whole Abilene Stargate campus at 4.5 GW gross against 1.2 GW of critical IT load. This map uses the operator's own IT figure and flags the gap in the register.</li>
+    <li><strong>Watch list, not yet mapped.</strong> SpaceXAI is in exploratory talks on gigawatt-scale sites at Austin, Bastrop and Conroe with no parcel confirmed; Cipher's 1 GW "Colchis" site has a signed hyperscaler lease but no disclosed location; Galaxy's Caspian (~700 MW) and Selene (~900 MW) are pending ERCOT interconnection.</li>
+  </ol>
+</section>
+
+<section class="mapblock" id="v-sources" hidden>
+  <div class="secthead"><h2>Sources</h2><span class="note">all public; every figure traceable</span></div>
+  <div class="srcs">
+    <a href="https://www.texastribune.org/2026/06/26/texas-data-center-guide-what-you-need-to-know/">Texas Tribune — Texas data center guide (439 GW, 248 planned)</a><br>
+    <a href="https://www.latitudemedia.com/news/ercots-large-load-queue-has-nearly-quadrupled-in-a-single-year/">Latitude Media — ERCOT large-load queue hits 226 GW</a><br>
+    <a href="https://www.cbre.com/insights/books/north-america-data-center-trends-h1-2026">CBRE — North America Data Center Trends H1 2026</a><br>
+    <a href="https://www.datacenterknowledge.com/build-design/texas-powers-past-virginia-in-global-data-center-rankings">Data Center Knowledge — Dallas passes Northern Virginia</a><br>
+    <a href="https://epoch.ai/publications/openai-stargate-where-the-us-sites-stand">Epoch AI — OpenAI Stargate: where the US sites stand</a><br>
+    <a href="https://vantage-dc.com/news/vantage-data-centers-unveils-plans-for-frontier-a-25b-mega-campus-in-texas-to-meet-unprecedented-ai-demand/">Vantage — Frontier, 1.4 GW / $25B</a><br>
+    <a href="https://www.datacenterdynamics.com/en/news/softbanks-sb-energy-to-build-and-operate-openais-12gw-stargate-data-center-in-milam-county-texas/">DCD — SB Energy, 1.2 GW Stargate in Milam County</a><br>
+    <a href="https://about.fb.com/news/2026/07/meta-announces-new-venture-with-blackrock-to-develop-data-center-in-el-paso/">Meta — El Paso 1 GW venture with BlackRock</a><br>
+    <a href="https://blogs.microsoft.com/blog/2026/06/22/powering-the-next-wave-of-ai-expanding-capacity-with-our-new-datacenter-in-pecos/">Microsoft — new datacenter in Pecos</a><br>
+    <a href="https://www.chevron.com/newsroom/2026/q2/chevron-signs-20-year-power-agreement-with-microsoft-for-west-texas-data-center">Chevron — 20-year, 2.67 GW power agreement with Microsoft</a><br>
+    <a href="https://www.datacenterdynamics.com/en/news/fermi-secures-preliminary-approval-for-6gw-of-natural-gas-generation-at-up-to-11gw-campus-in-amarillo-texas/">DCD — Fermi America, 6 GW gas at an 11 GW campus</a><br>
+    <a href="https://blog.google/inside-google/company-announcements/google-american-innovation-texas/">Google — $40B Texas investment</a><br>
+    <a href="https://www.powermag.com/google-launches-1-gw-plus-co-located-data-center-and-generation-complex-in-texas-panhandle/">POWER — Google Meitner Energy Center, Panhandle</a><br>
+    <a href="https://iren.com/data-centers/sweetwater">IREN — Sweetwater, 2,000 MW across 1,800 acres</a><br>
+    <a href="https://www.datacenterdynamics.com/en/news/microsoft-signs-97bn-cloud-capacity-deal-with-iren/">DCD — Microsoft's $9.7B capacity deal with IREN</a><br>
+    <a href="https://www.prnewswire.com/news-releases/galaxy-completes-phase-i-of-its-helios-data-center-campus-delivering-133-megawatts-of-critical-it-load-to-coreweave-302818664.html">Galaxy — Helios Phase I, 133 MW to CoreWeave</a><br>
+    <a href="https://constructionreviewonline.com/galaxy-digital-advances-5-7-gw-texas-ai-data-center-pipeline-with-helios-expansion-underway/">Construction Review — Galaxy's 5.7 GW Texas pipeline</a><br>
+    <a href="https://www.datacenterdynamics.com/en/news/aws-signs-300mw-hosting-deal-to-lease-capacity-from-cipher-mining/">DCD — AWS leases 300 MW from Cipher (Black Pearl)</a><br>
+    <a href="https://www.theblock.co/post/379722/cipher-mining-full-site-fluidstack-lease-raise-333-million-texas-expansion">The Block — Cipher's full-site Fluidstack lease (Barber Lake)</a><br>
+    <a href="https://qz.com/hut-8-beacon-point-texas-data-center-lease-072026">Quartz — Hut 8's $9.8B Beacon Point lease, Nueces County</a><br>
+    <a href="https://blockspace.media/insight/riot-corsicana-loi-756mw-ai-data-center/">Blockspace — Riot Corsicana, 756 MW LOI</a><br>
+    <a href="https://www.datacenterdynamics.com/en/news/riot-platforms-agrees-191mw-20-year-lease-agreement-with-anthropic-worth-91bn-report/">DCD — Riot Rockdale, 191 MW / $9.1B to Anthropic</a><br>
+    <a href="https://www.datacenterdynamics.com/en/news/google-to-provide-financial-backing-for-multi-billion-dollar-anthropic-data-center-in-texas-report/">DCD — Nexus Hubbard, 500 MW, Google-backed financing</a><br>
+    <a href="https://www.axios.com/local/austin/2026/08/26/anthropic-texas-data-centers-bastrop-rockdale">Axios Austin — Anthropic's three Texas sites</a><br>
+    <a href="https://aligneddc.com/press-release/aligned-breaks-ground-on-project-caprock/">Aligned — Project Caprock, 540 MW, Abernathy</a><br>
+    <a href="https://investors.terawulf.com/news-events/press-releases/detail/142/terawulf-announces-anthropic-lease-at-justified-data-campus-and-sale-of-majority-interest-in-abernathy-joint-venture-to-fluidstack">TeraWulf — Abernathy JV majority sold to Fluidstack</a><br>
+    <a href="https://www.datacenterdynamics.com/en/news/ai-startup-poolside-teams-up-with-coreweave-on-2gw-data-center-in-texas/">DCD — poolside × CoreWeave, 2 GW Project Horizon</a><br>
+    <a href="https://constructionreviewonline.com/amazon-backs-7-65-gw-gas-plant-in-texas-to-power-new-ai-data-center-campus/">Construction Review — Amazon backs 7.65 GW at GW Ranch</a><br>
+    <a href="https://www.datacenterdynamics.com/en/news/5gw-data-center-with-behind-the-meter-hydrogen-power-planned-for-laredo-texas/">DCD — Data City Texas, up to 5 GW near Laredo</a><br>
+    <a href="https://www.texastribune.org/2026/06/02/texas-data-centers-hood-county-local-control-rural-water-power/">Texas Tribune — Hood County's eight projects and local control</a><br>
+    <a href="https://www.datacenterdynamics.com/en/news/spacexai-considers-large-scale-data-center-in-texas-report/">DCD — SpaceXAI weighing large Texas sites</a><br>
+    <a href="https://roctelecom.com/insights/austin-data-center-market/">ROC Telecom — Austin / San Antonio market 2026</a><br>
+    <a href="https://www.wlanddevelopment.com/market-tracker">W Land — Texas AI data center &amp; private power tracker</a><br>
+    <a href="https://www.blackridgeresearch.com/blog/largest-biggest-upcoming-new-data-centers-in-texas-united-states">Blackridge Research — upcoming Texas hyperscale projects</a><br>
+    <a href="https://www.texastribune.org/2026/08/03/texas-data-center-project-audit-greg-abbott/">Texas Tribune — new Texas projects frozen pending state audit</a><br>
+    <a href="https://www.utilitydive.com/news/texas-hits-pause-data-center-interconnections/827046/">Utility Dive — 474 GW of requests; Texas hits pause</a><br>
+    <a href="https://www.powermag.com/texas-audit-could-delay-49-8-gw-of-data-center-load-cost-projects-up-to-15-billion-bnef-warns/">POWER — BNEF on 49.8 GW delayed and $8–15B of cost</a><br>
+    <a href="https://www.hklaw.com/en/insights/publications/2026/08/texas-gov-abbott-directs-data-center-audit">Holland &amp; Knight — scope of the Abbott audit directive</a><br>
+    <a href="https://www.utilitydive.com/news/nrg-nears-12-gw-hyperscaler-deal-amid-texas-data-center-pause/827212/">Utility Dive — NRG's 1.2 GW hyperscaler agreement</a><br>
+    <a href="https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-august-2026">Data Center Knowledge — new developments, August 2026</a><br>
+    <a href="https://comptroller.texas.gov/taxes/data-centers/data-center-lists.php">Texas Comptroller — registered qualifying data center lists</a><br>
+    <a href="https://www.cleanview.co/data-centers/texas">Cleanview — Texas data center project list (477)</a><br>
+    <a href="https://dcmap.us/">dcmap.us — US data center facility map</a>
+  </div>
+</section>
+
+<footer>
+  <span>Texas AI Data Center Atlas · v4 · 2026-09-02</span>
+  <span>Compiled from public sources. Not investment advice.</span>
+</footer>
+</div>
+
+<script>
+const COUNTY_D = "M453.1,20.6L454.1,20.6L456.0,20.6L457.3,20.6L459.2,20.7L460.2,20.7L462.6,20.7L464.7,20.7L468.3,20.8L471.9,20.8L474.4,20.8L474.1,50.8L444.5,50.4L445.0,20.5L446.8,20.5L450.9,20.6L452.1,20.6L453.1,20.6Z M335.4,107.1L335.4,105.2L336.4,77.4L384.8,78.4L383.8,108.5L335.4,107.1Z M642.4,257.9L642.6,286.0L642.6,287.7L638.8,287.7L613.2,287.9L613.4,257.7L621.0,257.7L642.4,257.8Z M749.1,257.4L751.4,273.6L740.2,270.8L734.1,266.2L731.0,263.7L733.1,256.6L737.8,256.4L749.1,257.4Z M383.0,138.0L383.8,108.5L413.9,109.2L413.0,138.5L392.5,138.2L383.0,138.0Z M474.2,80.4L444.1,80.1L444.5,50.6L474.1,50.8L474.2,80.4Z M700.9,268.8L700.8,264.8L700.8,263.5L700.7,257.4L713.2,257.1L713.4,266.6L713.5,268.4L700.9,268.8Z M592.9,392.0L592.6,399.4L562.5,399.6L555.1,399.6L555.1,398.3L555.1,363.0L560.8,361.4L562.2,364.7L567.7,364.1L568.7,366.2L573.4,366.3L574.1,368.7L576.1,365.1L585.7,378.5L588.8,383.5L588.0,388.1L592.9,392.0Z M625.2,319.8L620.7,310.7L620.4,309.9L629.6,304.1L639.2,303.8L639.3,311.6L625.2,319.8Z M583.9,261.3L584.2,291.2L554.5,291.4L554.4,261.3L562.7,261.3L583.9,261.3Z M503.7,261.1L494.9,261.1L473.7,260.7L474.0,231.2L503.8,231.4L503.7,261.1Z M377.8,259.4L355.9,258.8L356.7,229.6L386.0,230.3L385.3,259.5L377.8,259.4Z M778.5,227.1L796.5,228.1L796.9,254.0L790.6,248.4L779.4,251.2L778.5,227.1Z M779.1,282.8L778.3,260.2L802.8,259.1L803.7,259.9L804.2,266.6L804.6,276.1L788.7,284.6L779.1,282.8Z M495.5,487.8L501.2,487.8L525.4,487.6L536.7,487.6L536.6,524.0L495.3,524.2L495.5,487.8Z M341.6,347.2L343.5,347.3L342.7,371.6L339.2,373.2L328.8,365.9L303.1,361.1L299.5,346.5L296.9,347.0L294.9,345.6L311.2,346.3L341.5,347.2Z M655.7,432.6L643.6,427.2L632.1,432.3L621.3,419.0L615.9,419.3L620.8,408.3L628.5,400.0L640.3,402.2L658.4,409.9L661.0,411.0L668.2,429.8L657.8,433.7L655.7,432.6Z M645.1,228.0L651.0,227.9L650.7,258.0L649.8,257.9L642.4,257.9L621.0,257.7L620.8,228.4L644.4,228.0Z M536.6,524.0L536.9,554.6L495.0,554.0L495.3,524.2L536.6,524.0Z M562.2,201.8L574.1,201.6L592.0,201.4L592.2,216.7L592.4,226.5L592.4,231.3L562.3,231.4L562.2,201.8Z M421.8,138.9L413.0,138.7L413.9,109.2L443.6,109.7L443.0,139.1L421.8,138.9Z M674.9,451.3L676.4,457.2L659.7,475.5L639.9,456.8L648.8,447.0L649.2,446.2L653.5,437.3L655.3,433.4L655.7,432.6L657.8,433.7L672.7,443.1L674.9,451.3Z M584.4,428.1L594.9,427.9L598.4,428.9L611.6,432.8L608.9,437.6L601.9,459.3L595.1,466.2L584.8,452.6L584.4,428.1Z M607.9,647.6L618.4,647.6L622.8,651.0L623.2,680.0L602.9,680.1L596.7,680.2L596.8,661.7L593.9,661.8L592.2,649.6L590.3,647.6L607.9,647.6Z M623.5,391.3L627.8,398.4L628.5,400.0L620.8,408.3L615.9,419.3L611.7,428.9L611.6,432.8L598.4,428.9L593.2,416.2L597.1,411.6L593.5,408.6L596.7,405.2L592.6,399.4L592.9,392.0L623.5,391.3Z M778.3,260.2L778.0,252.7L778.7,251.8L779.4,251.2L790.6,248.4L796.9,254.0L802.8,259.1L778.3,260.2Z M383.0,138.0L392.5,138.2L391.8,167.7L386.7,167.6L362.3,167.0L363.2,137.6L383.0,138.0Z M332.1,199.2L356.4,200.0L356.7,229.6L330.6,228.8L331.3,216.5L331.4,212.5L331.5,211.1L331.6,209.6L331.7,207.6L331.8,204.6L332.1,199.2Z M496.3,354.8L518.7,355.1L525.6,360.9L525.5,388.4L495.9,388.3L496.3,354.8Z M631.2,347.9L635.6,345.2L640.6,353.5L651.7,371.5L623.7,389.0L607.6,362.4L631.2,347.9Z M343.5,347.3L369.3,348.0L369.3,386.4L364.2,386.2L362.1,378.9L348.0,369.5L342.7,371.6L343.4,348.0Z M377.8,259.4L385.3,259.5L407.1,259.8L406.7,289.5L377.4,289.0L377.8,259.4Z M645.7,541.9L634.8,528.9L643.1,521.8L664.7,502.7L680.7,521.4L661.5,538.1L654.9,534.1L645.7,541.9Z M495.0,554.0L536.9,554.6L537.8,584.2L494.9,584.5L495.0,554.0Z M480.0,442.4L495.5,442.5L516.6,442.5L516.4,457.2L504.1,456.6L500.3,472.5L501.2,487.8L495.5,487.8L460.9,487.4L461.4,442.3L480.0,442.4Z M659.6,475.6L676.4,457.2L676.8,458.5L689.7,449.4L698.3,450.3L700.0,457.1L703.2,462.6L692.7,476.9L685.9,485.4L670.1,486.1L670.8,485.0L659.6,475.6Z M778.5,227.1L779.4,251.2L778.7,251.8L778.0,252.7L777.0,256.2L769.3,256.5L768.2,228.3L778.5,227.1Z M444.2,259.9L436.5,260.2L414.7,260.0L415.3,230.6L444.6,230.9L444.2,259.9Z M664.7,502.7L643.1,521.8L636.1,514.3L628.3,505.5L629.3,503.9L641.2,485.1L643.3,486.4L659.6,475.6L670.8,485.0L670.1,486.1L666.6,489.4L664.7,502.7Z M444.1,80.1L474.2,80.4L474.0,110.0L443.6,109.7L444.1,80.1Z M747.4,442.0L745.2,442.2L743.4,442.4L730.6,443.9L730.8,439.6L726.7,436.9L727.1,433.3L730.9,430.0L728.4,429.1L724.3,418.7L724.9,403.4L742.6,400.1L745.0,415.9L747.2,435.7L747.4,442.0Z M480.5,139.6L480.2,169.1L475.7,169.0L474.6,169.0L450.6,168.8L451.1,139.3L473.6,139.5L480.5,139.6Z M445.0,20.5L444.5,50.4L415.0,50.0L415.6,20.0L445.0,20.5Z M691.3,337.0L690.3,337.5L679.2,344.5L672.9,334.1L659.3,342.4L656.4,339.5L658.9,335.8L653.1,334.0L649.8,329.8L653.1,327.1L647.0,324.2L647.3,313.6L669.5,306.9L678.2,321.2L680.7,319.6L691.3,337.0Z M406.7,289.5L436.0,290.1L435.0,319.7L430.4,319.7L405.7,319.2L406.7,289.5Z M444.1,79.7L414.5,79.3L415.0,50.0L444.5,50.6L444.1,79.7Z M564.5,680.2L564.4,647.5L573.8,647.5L573.7,641.7L590.4,642.3L590.3,647.6L592.2,649.6L593.9,661.8L596.8,661.7L596.7,680.2L564.5,680.2Z M647.3,313.6L645.1,316.3L639.3,311.6L639.2,303.8L638.8,287.7L642.6,287.7L669.0,287.6L669.5,306.9L647.3,313.6Z M465.9,260.6L444.2,259.9L444.6,230.9L474.0,231.2L473.7,260.7L465.9,260.6Z M516.4,457.2L516.6,442.5L543.1,442.8L543.1,453.2L565.4,452.8L565.7,477.0L550.4,469.4L525.6,468.6L520.3,468.5L520.4,457.3L516.4,457.2Z M532.9,208.6L533.0,231.4L503.8,231.4L503.6,201.6L512.6,201.7L525.9,205.0L532.9,208.6Z M573.1,594.0L538.1,596.0L537.8,584.2L537.7,554.6L573.0,554.0L573.1,594.0Z M628.1,593.5L607.1,593.7L601.2,593.7L600.7,556.1L614.6,544.1L620.3,550.6L615.3,552.5L632.5,584.8L631.9,585.3L626.8,589.6L628.1,593.5Z M415.5,201.0L415.3,230.6L386.0,230.3L386.1,200.8L415.5,201.0Z M687.0,357.0L659.9,374.0L656.2,376.5L651.7,371.5L640.6,353.5L642.0,352.7L659.3,342.4L672.9,334.1L679.2,344.5L687.0,357.0Z M562.5,399.6L562.7,428.2L542.9,428.3L532.4,428.3L532.4,414.0L532.4,398.4L555.1,398.3L555.1,399.6L562.5,399.6Z M400.5,348.7L371.1,348.1L371.8,318.5L376.2,318.6L401.1,319.1L400.5,348.7Z M788.9,445.8L779.5,455.3L765.1,448.2L762.3,446.5L756.4,450.9L747.8,452.5L747.4,442.0L747.2,435.7L745.0,415.9L758.7,423.7L772.7,423.5L775.9,430.1L784.4,433.9L788.9,445.8Z M680.7,319.6L709.6,301.5L725.2,312.5L729.0,322.5L704.1,337.9L691.3,337.0L680.7,319.6Z M464.7,320.2L465.1,300.2L465.3,290.4L481.4,290.6L494.6,290.8L494.1,320.7L489.4,320.7L464.7,320.2Z M445.3,168.7L421.3,168.4L421.8,138.9L443.0,139.1L451.1,139.3L450.6,168.8L449.5,168.8L445.3,168.7Z M553.3,321.0L564.5,321.0L579.3,346.6L574.1,347.5L573.0,352.7L560.8,361.4L555.1,363.0L548.6,362.6L548.9,321.0L551.7,321.0L553.0,321.0Z M659.7,475.5L643.3,486.4L641.2,485.1L636.0,483.0L626.8,471.2L625.7,469.5L636.3,459.8L639.5,456.4L659.7,475.5Z M635.5,709.9L651.5,712.2L656.4,710.4L660.2,704.4L661.0,705.6L660.7,706.5L659.9,707.5L659.7,709.3L660.7,709.5L661.1,708.7L661.8,708.1L662.7,707.9L663.5,708.5L663.1,709.8L662.1,710.7L662.5,712.4L662.7,714.1L664.0,713.8L665.0,715.1L664.2,716.2L665.2,718.5L665.8,719.2L665.2,721.4L665.8,722.5L666.5,723.5L666.0,724.5L666.9,725.9L667.4,726.3L668.9,726.7L671.3,726.7L672.1,729.2L671.5,730.0L670.3,730.2L670.7,732.3L671.4,732.6L673.4,732.0L673.9,731.5L674.1,730.4L673.5,729.0L672.9,728.4L673.9,727.7L674.7,729.3L674.8,730.8L675.2,733.9L673.6,734.5L670.2,734.9L667.6,735.4L662.9,736.9L662.1,737.9L661.8,738.8L661.9,740.0L659.4,742.0L653.9,740.5L653.0,740.0L648.6,736.7L643.3,731.1L643.1,730.3L631.4,728.6L631.3,722.0L631.1,709.2L634.9,709.8Z M444.1,80.1L443.6,109.7L413.9,109.2L414.5,79.5L444.1,79.7Z M840.0,232.4L840.1,233.8L840.2,236.2L840.2,237.2L840.4,241.1L840.6,244.5L840.6,245.4L840.8,249.5L841.1,253.8L841.1,255.0L841.2,256.9L841.3,258.1L841.1,258.9L828.0,259.5L806.6,260.6L805.6,234.2L810.1,235.3L813.1,232.9L818.9,232.5L821.0,234.4L829.5,235.0L830.0,231.1L839.2,230.6L840.0,232.4Z M798.5,352.9L791.0,359.9L785.1,357.3L780.5,349.7L774.9,349.4L775.6,348.2L766.2,333.2L764.3,332.8L764.7,316.3L763.6,314.8L762.8,312.9L789.9,311.7L790.7,331.5L793.5,331.5L792.0,337.8L793.2,345.4L798.5,352.9Z M592.4,226.5L592.2,216.7L592.0,201.4L591.2,183.7L593.1,182.0L594.0,180.2L595.1,179.6L597.3,180.0L598.7,181.1L604.3,182.2L606.1,182.4L609.7,187.8L610.7,189.7L613.3,190.5L614.6,190.4L616.6,189.9L618.7,190.6L618.3,194.3L617.0,197.4L617.3,226.1L592.4,226.5Z M489.2,347.1L455.2,346.6L455.8,320.1L464.7,320.2L489.4,320.7L489.2,347.1Z M691.3,257.4L682.4,257.5L682.1,250.8L682.1,246.3L682.0,229.1L707.3,228.9L707.5,232.8L712.5,231.9L713.2,257.1L700.7,257.4L695.2,257.4L692.6,257.4L691.3,257.4Z M503.7,120.6L503.6,139.8L480.5,139.6L473.6,139.5L474.0,110.0L503.8,110.3L503.7,120.6Z M593.5,481.0L587.2,478.3L581.6,479.4L595.1,466.2L601.9,459.3L617.7,472.0L619.6,478.5L614.4,483.2L601.4,489.4L597.4,484.9L599.7,480.8L593.5,481.0Z M858.5,437.5L869.3,436.8L869.7,440.2L870.8,443.3L870.1,448.8L869.6,449.9L868.0,452.4L865.9,454.4L863.2,459.6L861.8,455.3L851.6,452.4L846.2,443.7L845.9,438.2L858.5,437.5Z M363.2,137.6L362.3,167.0L357.3,166.9L333.4,166.1L333.5,161.6L333.6,160.6L333.7,156.4L334.1,145.3L334.2,141.8L334.4,136.7L363.2,137.6Z M429.6,355.7L429.6,357.6L428.7,388.1L399.7,387.6L400.5,348.7L429.8,349.3L429.6,355.7Z M516.4,457.2L520.4,457.3L520.3,468.5L525.6,468.6L525.4,487.6L501.2,487.8L500.3,472.5L504.1,456.6L516.4,457.2Z M799.0,204.9L800.1,230.3L796.5,228.1L778.5,227.1L768.3,228.3L766.8,194.8L768.1,194.6L769.6,193.6L770.1,192.6L770.1,191.2L769.9,190.5L771.0,188.6L775.3,189.5L776.8,190.0L780.4,191.2L780.7,192.1L782.1,194.9L792.0,202.3L794.6,203.1L798.1,203.3L799.0,204.9Z M714.2,397.7L708.3,409.3L702.0,412.8L700.3,411.5L700.1,410.6L698.8,410.4L696.3,403.8L694.8,398.6L690.6,397.3L686.1,385.3L699.3,377.1L715.1,367.4L714.6,374.6L720.4,393.3L719.1,394.0L715.0,397.0L714.2,397.7Z M489.2,347.1L489.4,320.7L494.1,320.7L519.2,320.8L518.7,355.1L496.3,354.8L489.2,354.3L489.2,347.1Z M847.4,377.4L846.2,358.7L849.5,354.7L849.1,347.7L857.6,346.1L858.7,348.2L859.9,349.5L864.1,352.5L866.3,357.7L867.8,359.1L869.6,360.0L868.1,365.1L869.7,366.5L871.1,366.8L871.5,367.5L872.0,369.7L872.1,371.3L872.5,372.9L854.7,375.4L847.4,377.4Z M444.2,259.9L465.9,260.6L465.3,290.4L436.0,289.8L436.5,260.2L444.2,259.9Z M554.5,291.4L553.5,291.4L525.1,291.4L525.1,261.4L533.1,261.4L554.4,261.3L554.5,291.4Z M817.5,321.7L845.9,319.9L848.4,323.6L851.0,325.5L851.7,325.8L853.6,327.9L854.3,328.7L856.6,331.6L858.5,337.3L858.4,340.3L858.0,344.1L857.6,346.1L849.1,347.7L842.8,344.5L825.0,343.1L821.3,330.3L817.5,321.7Z M789.9,311.7L762.8,312.9L760.9,306.4L762.8,298.0L754.2,289.8L753.7,275.8L760.8,281.0L768.9,280.9L778.4,284.6L779.1,282.8L788.7,284.6L789.2,295.9L789.9,311.7Z M602.9,680.1L593.6,701.4L592.7,703.1L587.1,715.9L584.9,715.7L584.3,716.4L579.8,714.6L577.0,710.9L573.6,708.4L572.7,708.3L570.3,708.6L559.0,705.9L555.5,703.8L551.6,695.7L551.4,694.8L561.1,687.8L564.5,680.2L596.7,680.2L602.9,680.1Z M455.8,320.1L455.2,346.6L453.2,345.9L452.8,355.7L429.6,355.7L429.8,349.3L430.4,319.7L435.0,319.7L455.8,320.1Z M446.6,413.8L453.0,413.8L495.7,413.9L495.5,442.5L480.0,442.4L461.4,442.3L446.2,442.2L446.6,413.8Z M421.3,168.4L416.0,168.3L391.8,167.7L392.5,138.2L413.0,138.7L421.8,138.9L421.3,168.4Z M524.0,320.9L519.2,320.8L494.1,320.7L494.6,290.8L524.1,291.0L524.0,320.9Z M533.0,231.4L562.3,231.4L562.7,261.3L554.4,261.3L533.1,261.4L533.0,231.4Z M462.7,388.1L462.7,358.4L432.2,357.7L429.6,357.6L429.6,355.7L452.8,355.7L453.2,345.9L455.2,346.6L489.2,347.1L489.2,354.3L496.3,354.8L495.9,388.3L462.7,388.1Z M653.5,437.3L649.2,446.2L648.8,447.0L639.8,456.8L636.3,459.8L618.5,445.2L608.9,437.6L611.6,432.8L611.7,428.9L615.9,419.3L621.3,419.0L632.1,432.3L643.6,427.2L655.7,432.6L655.3,433.4L653.5,437.3Z M820.0,420.0L812.0,387.4L817.4,383.9L823.5,385.4L824.0,387.4L829.5,384.7L836.3,386.1L836.1,388.2L840.4,400.8L842.1,401.0L843.9,408.2L848.4,411.0L846.1,415.5L847.6,418.7L820.0,420.0Z M727.0,299.1L726.0,266.5L734.1,266.2L740.2,270.8L751.4,273.6L751.9,274.4L753.1,274.8L753.8,275.4L754.2,289.8L762.8,298.0L727.0,299.1Z M700.9,547.6L700.4,548.1L688.7,553.1L684.2,556.4L686.7,561.8L681.3,562.4L677.3,559.1L670.6,559.0L669.2,555.2L670.4,543.9L665.9,537.9L661.5,538.1L680.7,521.4L682.4,523.5L683.0,524.1L689.4,526.8L691.9,533.7L696.8,538.2L700.9,547.6Z M698.4,440.0L714.2,434.9L714.7,434.4L715.8,434.6L717.4,433.5L718.2,433.8L724.0,433.4L726.7,436.9L730.8,439.6L730.6,443.9L726.7,445.3L725.0,450.2L727.8,454.5L719.1,453.0L700.0,457.1L698.3,450.3L689.7,449.4L693.2,443.7L698.4,440.0Z M503.8,110.3L474.0,110.0L474.2,80.4L503.9,80.7L503.9,94.0L503.8,110.3Z M592.0,201.4L574.1,201.6L562.2,201.8L562.1,177.2L564.0,178.1L567.4,180.1L572.6,181.2L576.3,181.2L578.2,180.1L579.0,179.4L579.8,179.4L581.3,179.4L583.2,180.2L584.5,181.3L587.3,185.4L589.0,185.9L591.2,183.7L592.0,201.4Z M635.5,709.9L631.1,709.2L631.0,703.4L622.4,702.5L625.1,691.5L630.9,692.3L656.4,691.7L657.2,693.6L657.9,694.8L657.7,697.1L657.2,698.0L657.4,699.5L656.9,700.5L656.6,701.5L657.5,702.1L658.4,702.0L658.3,703.0L657.8,704.1L658.8,704.6L659.5,704.2L660.2,704.4L656.4,710.4L651.5,712.2L635.5,709.9Z M779.1,282.8L778.4,284.6L768.9,280.9L760.8,281.0L753.7,275.8L753.2,275.2L752.5,274.4L751.4,273.6L749.1,257.4L769.3,256.5L777.0,256.2L778.0,252.7L778.3,260.2L779.1,282.8Z M764.7,316.3L764.3,332.8L766.2,333.2L775.6,348.2L774.9,349.4L753.2,353.7L748.2,356.4L749.7,348.8L745.2,348.7L744.7,345.9L740.8,344.2L739.8,339.6L733.7,337.8L732.8,332.3L730.8,331.5L730.9,326.1L728.7,326.3L729.1,322.9L764.7,316.3Z M573.0,554.0L572.6,523.9L572.5,513.0L596.1,522.1L609.1,537.7L614.6,544.1L600.7,556.1L600.7,553.7L573.0,554.0Z M700.0,457.1L719.1,453.0L727.8,454.5L731.5,458.8L729.4,461.4L729.7,470.0L734.0,472.5L735.1,477.5L735.9,486.0L732.1,486.2L727.0,484.2L722.0,482.0L716.6,471.2L712.6,471.6L703.2,462.6L700.0,457.1Z M333.4,166.1L357.3,166.9L356.4,200.0L332.1,199.2L332.2,197.5L332.4,194.0L332.5,191.0L332.6,189.1L332.7,187.1L332.7,186.1L332.8,185.1L332.8,184.0L332.8,183.1L332.9,182.0L333.3,169.9L333.3,167.7L333.3,166.8Z M532.9,201.8L562.2,201.8L562.3,231.4L533.0,231.4L532.9,208.6L532.9,201.8Z M658.0,570.4L648.5,585.8L646.9,588.2L631.9,585.3L632.5,584.8L615.3,552.5L620.3,550.6L625.6,548.5L633.7,551.9L638.7,560.4L647.0,562.1L647.5,566.5L658.0,570.4Z M603.1,512.3L596.1,522.1L572.5,513.0L572.2,483.2L573.9,481.2L581.6,479.4L587.2,478.3L593.5,481.0L599.7,480.8L597.4,484.9L601.4,489.4L602.2,491.7L603.7,492.4L612.4,496.9L612.0,499.7L603.1,512.3Z M436.5,260.2L436.0,289.8L406.7,289.5L407.1,259.8L414.7,260.0L436.5,260.2Z M625.2,319.8L639.3,311.6L645.1,316.3L647.3,313.6L647.0,324.2L653.1,327.1L649.8,329.8L653.1,334.0L658.9,335.8L656.4,339.5L659.3,342.4L642.0,352.7L640.6,353.5L635.6,345.2L631.2,347.9L617.2,324.6L625.2,319.8Z M771.3,486.3L778.7,485.0L783.5,487.5L783.4,488.5L783.3,489.4L783.2,490.4L782.9,492.7L782.8,493.7L793.9,511.3L790.5,519.7L790.2,520.5L786.4,523.6L783.7,526.1L781.8,528.0L780.4,529.9L779.7,530.3L777.2,532.5L775.8,534.0L775.5,534.7L773.5,535.2L772.1,535.3L769.4,537.0L768.2,537.8L764.6,537.6L757.7,528.6L752.6,528.6L752.1,521.9L747.5,519.3L745.6,511.1L747.4,509.0L752.5,504.4L758.4,506.5L762.7,503.0L764.2,496.2L769.3,496.0L770.3,491.1L771.3,486.3Z M516.6,442.5L495.5,442.5L495.7,413.9L532.4,414.0L532.4,428.3L542.9,428.3L543.1,442.8L516.6,442.5Z M462.4,524.1L462.0,523.0L455.1,513.3L458.0,512.5L460.8,501.3L460.9,487.4L495.5,487.8L495.3,524.2L462.5,524.1Z M737.0,223.7L736.8,197.9L738.0,198.1L741.4,197.3L741.8,196.0L750.4,191.1L752.3,191.2L753.3,192.8L753.2,193.7L753.4,194.5L759.2,195.3L761.4,195.4L765.2,195.0L766.8,194.8L768.2,228.1L750.3,221.5L742.5,221.2L738.8,223.8L737.0,223.7Z M585.7,378.5L602.7,366.1L607.6,362.4L623.7,389.0L623.5,391.3L592.9,392.0L588.0,388.1L588.8,383.5L585.7,378.5Z M683.0,524.1L682.5,523.5L680.7,521.4L664.7,502.7L666.6,489.4L670.1,486.1L685.9,485.4L690.7,489.0L704.9,505.1L699.2,510.1L683.0,524.1Z M676.4,457.2L674.9,451.3L672.7,443.1L657.8,433.7L668.2,429.8L679.2,422.7L692.6,438.6L698.4,440.0L693.2,443.7L689.7,449.4L676.8,458.5L676.4,457.2Z M784.4,433.9L792.0,429.5L802.4,423.0L806.6,423.2L809.2,423.0L817.8,447.0L827.2,447.8L828.0,463.0L796.4,464.7L796.0,458.7L793.2,457.4L788.9,445.8L784.4,433.9Z M719.8,363.5L715.9,365.7L714.9,366.3L715.1,367.4L699.3,377.1L687.0,357.0L679.2,344.5L690.3,337.5L691.3,337.0L704.1,337.9L719.8,363.5Z M474.1,50.8L474.4,20.8L475.7,20.9L480.1,20.9L481.2,20.9L483.5,20.9L485.0,20.9L486.0,20.9L487.2,20.9L494.3,21.0L499.3,21.0L504.0,21.0L504.0,51.1L474.4,50.8Z M312.1,322.6L311.2,346.3L294.9,345.6L294.2,342.0L284.5,337.2L283.0,329.1L279.7,330.2L274.7,321.2L289.4,321.7L312.1,322.6Z M414.7,260.0L407.1,259.8L385.3,259.5L386.0,230.3L415.3,230.6L414.7,260.0Z M525.6,360.9L530.7,365.4L537.1,364.0L542.2,366.5L548.6,362.6L555.1,363.0L555.1,398.3L532.4,398.4L525.5,398.4L525.5,388.4L525.6,360.9Z M376.9,288.9L406.7,289.5L405.7,319.2L401.1,319.1L376.2,318.6L376.9,288.9Z M494.9,584.5L489.1,584.5L486.3,581.6L484.3,579.2L481.0,570.2L481.9,564.0L478.7,563.0L477.7,561.5L476.2,557.3L475.2,556.5L472.1,552.9L471.5,550.9L471.4,549.9L471.7,549.1L471.7,547.5L470.1,543.1L469.4,541.7L466.9,539.3L463.9,535.5L463.3,533.7L463.5,530.9L462.6,524.9L462.4,524.1L495.3,524.2L495.0,554.0L494.9,584.5Z M495.9,388.3L525.5,388.4L525.5,398.4L532.4,398.4L532.4,414.0L495.7,413.9L495.9,388.3Z M686.1,385.3L690.6,397.3L694.8,398.6L696.3,403.8L698.8,410.4L679.2,422.7L668.2,429.8L661.0,411.0L658.4,409.9L661.5,400.5L672.3,393.7L686.1,385.3Z M602.4,365.7L585.7,378.5L576.1,365.1L574.1,368.7L573.4,366.3L568.7,366.2L567.7,364.1L562.2,364.7L560.8,361.4L573.0,352.7L574.1,347.5L579.3,346.6L589.4,344.9L591.1,347.6L602.4,365.7Z M414.5,79.3L384.8,78.9L385.5,49.4L415.0,50.0L414.5,79.3Z M658.6,605.3L659.6,607.0L658.6,607.8L657.8,609.4L657.8,611.5L658.2,612.6L659.3,614.3L660.6,615.4L662.5,616.2L666.2,617.2L665.9,618.4L663.8,622.9L663.8,623.9L663.5,624.8L662.4,625.8L662.2,626.5L631.2,627.2L625.0,622.1L625.2,605.2L633.3,597.5L632.9,601.7L639.8,602.7L645.9,606.8L658.6,605.3Z M584.2,291.2L583.9,261.3L592.4,261.4L592.4,257.6L613.4,257.7L613.2,287.9L613.1,291.1L589.9,291.3L588.8,291.3L584.3,291.2Z M788.9,393.1L795.6,386.0L800.9,378.7L817.4,383.9L812.0,387.4L820.0,420.0L820.6,422.4L809.2,423.0L806.6,423.2L802.4,423.0L803.4,419.7L791.7,417.7L790.0,410.9L785.2,410.1L785.2,404.1L781.1,401.4L788.9,393.1Z M274.7,321.2L279.7,330.2L283.0,329.1L284.5,337.2L294.2,342.0L294.9,345.6L296.9,347.0L299.5,346.5L303.1,361.1L328.8,365.9L294.2,405.8L265.1,381.6L272.1,321.1L274.7,321.2Z M830.5,372.0L829.7,371.0L830.2,347.3L825.2,344.1L825.0,343.1L842.8,344.5L849.1,347.7L849.5,354.7L846.2,358.7L847.4,377.4L842.3,380.0L830.5,372.0Z M495.7,413.9L453.0,413.8L446.6,413.8L446.8,388.2L462.7,388.1L495.9,388.3L495.7,413.9Z M386.2,19.3L393.3,19.5L404.5,19.8L406.6,19.8L410.9,19.9L414.0,19.9L415.6,20.0L415.0,50.0L385.5,49.4L386.2,19.5Z M642.6,287.7L642.6,286.0L642.4,257.9L649.8,257.9L650.7,258.0L651.8,258.0L656.6,257.9L663.8,257.8L671.5,257.6L671.6,262.3L671.8,287.6L669.0,287.6L642.6,287.7Z M800.9,378.7L795.6,386.0L788.9,393.1L781.1,401.4L777.9,395.9L773.6,399.3L767.2,394.2L766.9,386.8L793.6,362.6L796.5,365.9L800.9,378.7Z M766.9,386.8L767.2,394.2L773.6,399.3L772.7,423.5L758.7,423.7L745.0,415.9L742.6,400.1L756.6,395.1L766.9,386.0Z M732.1,486.2L734.8,488.8L734.0,494.7L739.3,498.9L741.6,502.5L741.1,504.2L744.2,505.3L745.2,508.6L747.1,508.8L745.6,511.1L740.4,516.9L720.4,529.9L700.3,511.2L717.2,500.0L719.4,492.5L727.0,484.2L732.1,486.2Z M603.1,512.3L611.8,499.8L614.9,503.9L629.3,503.9L628.3,505.5L636.1,514.3L609.1,537.7L596.1,522.1L603.1,512.3Z M562.7,261.3L562.3,231.4L592.4,231.3L592.4,257.6L592.4,261.4L583.9,261.3L562.7,261.3Z M371.8,318.5L342.5,317.7L327.3,317.2L327.4,314.7L327.4,313.2L328.3,287.6L376.9,288.9L376.2,318.6L371.8,318.5Z M525.4,487.6L525.5,469.1L550.4,469.4L565.7,477.0L573.7,481.1L572.2,483.2L565.2,491.9L561.8,487.8L536.7,487.6L525.4,487.6Z M672.3,393.7L661.5,400.5L658.4,409.9L640.3,402.2L628.5,400.0L627.8,398.4L623.5,391.3L623.4,389.2L651.7,371.5L656.2,376.5L659.9,374.0L672.3,393.7Z M702.0,412.8L708.3,409.3L714.2,397.7L715.0,397.0L719.1,394.0L720.4,393.3L724.9,403.4L724.3,418.7L728.4,429.1L730.9,430.0L727.1,433.3L726.7,436.9L724.0,433.4L718.2,433.8L717.8,433.0L718.3,432.4L718.9,431.6L719.7,431.7L718.8,430.9L718.8,430.1L718.9,429.1L714.4,422.9L705.4,417.3L700.1,416.5L700.5,415.7L701.1,415.3L701.0,413.6L701.7,413.2Z M548.9,321.0L524.0,320.9L524.1,291.4L525.1,291.4L553.5,291.4L553.3,321.0L551.7,321.0L548.9,321.0Z M503.7,169.3L480.2,169.1L480.5,139.6L503.6,139.8L503.6,152.5L503.7,169.3Z M518.7,355.1L519.2,320.8L524.0,320.9L548.9,321.0L548.6,362.6L542.2,366.5L537.1,364.0L530.7,365.4L525.6,360.9L518.7,355.1Z M700.3,511.2L699.2,510.1L704.9,505.1L690.7,489.0L685.9,485.4L692.7,476.9L703.2,462.6L712.6,471.6L716.6,471.2L722.0,482.0L727.0,484.2L719.4,492.5L717.2,500.0L700.3,511.2Z M415.5,201.0L444.9,201.2L444.6,230.9L415.3,230.6L415.5,201.0Z M737.3,240.2L737.1,227.2L737.0,223.7L738.8,223.8L742.5,221.2L750.3,221.5L768.2,228.1L767.9,229.0L752.7,230.1L744.5,234.1L737.3,240.2Z M573.7,641.7L573.1,594.0L601.2,593.7L607.1,593.7L607.9,647.6L590.3,647.6L590.4,642.3L573.7,641.7Z M620.4,309.9L620.7,310.7L625.2,319.8L617.2,324.6L605.6,331.6L603.1,327.3L598.8,330.0L585.7,308.4L590.1,305.8L589.9,291.3L613.1,291.1L620.4,309.9Z M421.3,168.4L445.3,168.7L444.9,201.2L415.5,201.0L416.0,168.3L421.3,168.4Z M572.6,523.9L573.0,554.0L537.7,554.6L536.6,524.0L572.6,523.9Z M565.4,452.8L543.1,453.2L543.1,442.8L542.9,428.3L562.7,428.3L584.4,428.1L584.8,452.6L565.4,452.8Z M429.8,349.3L400.5,348.7L401.1,319.1L405.7,319.2L430.4,319.7L429.8,349.3Z M645.7,541.9L654.9,534.1L661.5,538.1L665.9,537.9L670.4,543.9L669.2,555.2L670.6,559.0L658.1,570.4L647.5,566.5L647.0,562.1L638.7,560.4L633.7,551.9L645.7,541.9Z M788.7,284.6L804.6,276.1L805.3,291.8L812.4,293.3L811.2,295.7L809.1,295.1L789.3,295.9L788.7,284.6Z M612.0,499.7L612.4,496.9L603.7,492.4L602.2,491.7L601.4,489.4L614.4,483.2L619.6,478.5L626.8,471.2L636.0,483.0L641.2,485.1L629.3,503.9L614.9,503.9L612.0,499.7Z M385.5,49.4L384.8,78.4L336.4,77.4L336.6,69.5L337.3,48.1L385.5,49.4Z M608.9,437.6L618.5,445.2L636.3,459.8L625.7,469.5L626.8,471.2L619.6,478.5L617.7,472.0L601.9,459.3L608.9,437.6Z M386.0,230.3L356.7,229.6L356.4,200.0L386.1,200.8L386.0,230.3Z M713.4,266.6L713.2,257.1L712.5,231.9L737.1,227.2L737.3,240.2L737.7,255.0L737.8,256.4L733.1,256.6L731.0,263.7L734.1,266.2L726.0,266.4L713.4,266.6Z M842.3,380.0L847.4,377.4L854.7,375.4L858.1,389.6L858.5,437.5L845.9,438.2L847.5,431.3L845.3,425.1L847.6,418.7L846.1,415.5L848.4,411.0L843.9,408.2L842.1,401.0L840.4,400.8L836.1,388.2L836.3,386.1L829.5,384.7L824.0,387.4L823.5,385.4L842.3,380.0Z M614.6,544.1L609.1,537.7L636.1,514.3L643.1,521.8L634.8,528.9L645.7,541.9L633.7,551.9L625.6,548.5L620.3,550.6L614.6,544.1Z M474.2,201.5L500.7,201.6L503.6,201.6L503.8,231.4L474.0,231.2L474.2,201.5Z M362.3,167.0L386.7,167.6L386.1,200.8L356.4,200.0L357.3,166.9L362.3,167.0Z M715.1,367.4L714.9,366.3L715.9,365.7L719.8,363.5L745.2,348.7L749.7,348.8L748.2,356.4L753.4,368.9L749.6,372.2L747.7,384.3L735.6,384.8L720.4,393.3L714.6,374.6L715.1,367.4Z M562.7,428.3L562.5,399.6L592.6,399.4L596.7,405.2L593.5,408.6L597.1,411.6L593.2,416.2L598.4,428.9L594.9,427.9L584.4,428.1L562.7,428.3Z M756.6,395.1L742.6,400.1L724.9,403.4L720.4,393.3L735.6,384.8L747.7,384.3L753.6,384.8L752.8,391.4L756.6,395.1Z M572.6,523.9L536.6,524.0L536.7,487.6L561.8,487.8L565.2,491.9L572.2,483.2L572.5,513.0L572.6,523.9Z M465.3,290.4L465.1,300.2L464.7,320.2L455.8,320.1L435.0,319.7L436.0,290.1L465.3,290.4Z M800.1,230.3L805.6,234.2L806.6,260.6L803.7,260.7L802.8,259.3L796.9,254.0L796.5,228.1L800.1,230.3Z M503.7,169.3L503.7,171.2L503.6,175.3L500.9,174.9L500.7,201.6L474.2,201.5L474.6,169.0L475.6,169.0L480.2,169.1L503.7,169.3Z M399.6,441.4L405.5,436.7L400.8,432.4L406.5,423.0L406.2,419.0L399.5,416.6L393.2,397.9L387.5,393.6L375.5,392.2L364.2,386.2L369.3,386.4L399.7,387.6L428.7,388.1L446.8,388.2L446.6,413.8L446.2,442.2L399.6,441.4Z M272.1,321.1L265.1,381.6L216.5,409.4L217.1,397.7L220.9,319.3L225.0,318.9L236.7,319.5L243.0,319.8L272.1,321.1Z M386.2,19.3L385.5,49.4L337.3,48.1L337.9,30.3L338.2,19.4L340.4,18.0L386.2,19.3Z M682.4,257.5L691.0,257.4L692.6,257.4L695.2,257.4L700.7,257.4L700.8,263.5L700.8,264.5L700.9,268.8L701.2,287.1L679.2,287.4L671.8,287.6L671.6,262.3L671.5,257.6L672.4,257.6L682.2,257.5Z M682.0,229.1L682.1,246.3L682.1,250.8L682.2,257.5L672.4,257.6L671.5,257.6L663.8,257.8L656.6,257.9L651.8,258.0L650.8,258.0L651.0,228.1L669.7,228.4L675.8,228.5L682.0,229.1Z M444.9,201.2L474.2,201.5L474.0,231.2L444.6,230.9L444.9,201.2Z M564.5,321.0L553.3,321.0L553.5,291.4L554.5,291.4L584.2,291.2L588.8,291.3L589.9,291.3L590.1,305.8L585.7,308.4L579.5,312.3L564.5,321.0Z M669.0,287.6L671.0,287.6L679.2,287.4L700.8,287.1L705.6,299.6L709.6,301.5L680.7,319.6L678.2,321.2L669.5,306.9L669.0,287.6Z M672.3,393.7L659.9,374.0L687.0,357.0L699.3,377.1L686.1,385.3L672.3,393.7Z M707.1,206.6L707.7,207.3L711.2,205.2L715.4,204.9L717.1,204.6L718.1,204.1L718.8,203.4L719.1,202.4L719.4,200.4L719.9,198.7L722.7,198.0L731.0,197.0L736.8,197.9L737.0,223.7L737.1,227.2L712.5,231.9L707.5,232.8L707.4,229.0L707.1,206.7Z M494.6,290.8L481.4,290.6L465.3,290.4L465.9,260.6L473.7,260.7L494.9,261.1L494.6,290.8Z M755.4,478.0L760.1,480.9L764.4,483.0L769.9,485.7L770.6,486.0L771.3,486.3L770.3,491.1L769.3,496.0L764.2,496.2L762.7,503.0L758.4,506.5L752.5,504.4L747.1,508.8L745.2,508.6L744.2,505.3L741.1,504.2L741.6,502.5L739.3,498.9L734.0,494.7L734.8,488.8L732.1,486.2L735.9,486.0L735.1,477.5L747.1,473.1L755.4,478.0Z M676.2,191.6L677.0,192.2L677.5,193.3L677.8,195.9L678.5,197.8L679.5,198.8L680.1,199.1L685.4,200.6L688.2,200.0L688.8,199.4L689.1,198.7L689.4,197.9L689.6,197.2L690.0,195.8L691.1,195.3L691.7,195.6L692.5,196.0L693.5,196.5L693.7,197.4L693.6,198.4L693.6,199.2L700.2,203.7L703.1,203.0L704.5,203.3L707.1,206.6L707.4,229.0L682.0,229.1L675.8,228.5L674.9,192.4L676.2,191.6Z M391.8,167.7L416.0,168.3L415.5,201.0L386.1,200.8L386.7,167.6L391.8,167.7Z M607.6,362.4L602.4,365.7L591.1,347.6L608.7,336.7L605.6,331.6L617.2,324.6L631.2,347.9L607.6,362.4Z M444.9,201.2L445.3,168.7L449.5,168.8L450.6,168.8L474.6,169.0L474.2,201.5L444.9,201.2Z M830.5,372.0L820.2,360.2L818.2,360.8L817.3,358.6L806.6,357.3L798.5,352.9L793.2,345.4L792.0,337.8L793.5,331.5L821.3,330.3L825.0,343.1L825.2,344.1L830.2,347.3L829.7,371.0L830.5,372.0Z M858.5,437.5L858.1,389.6L854.7,375.4L872.6,373.2L873.4,373.9L875.4,372.4L876.4,372.4L877.2,379.9L876.7,384.4L877.6,390.1L876.4,393.3L876.1,397.4L875.3,398.5L867.4,414.5L866.8,416.9L868.7,419.0L869.6,423.2L869.4,424.2L867.2,426.1L866.7,426.6L866.1,430.9L867.9,433.1L868.7,433.4L869.3,436.8L858.5,437.5Z M503.7,169.3L503.7,152.6L506.1,151.3L507.9,151.5L510.0,153.4L510.6,154.1L511.1,155.0L512.2,156.3L515.1,159.7L516.6,161.3L520.6,164.9L522.3,165.2L525.0,165.1L527.0,162.3L530.6,162.4L531.5,162.8L532.9,163.5L532.9,184.7L528.8,186.8L522.9,183.8L516.2,184.2L503.6,175.3L503.6,171.3L503.7,169.3Z M820.0,420.0L847.6,418.7L845.3,425.1L847.5,431.3L845.9,438.2L846.2,443.7L840.7,442.1L836.0,447.1L827.2,447.8L817.8,447.0L809.2,423.0L820.6,422.4L820.0,420.0Z M755.4,478.0L747.1,473.1L738.4,447.9L747.8,452.5L756.4,450.9L762.3,446.5L765.1,448.2L779.5,455.3L788.9,445.8L793.2,457.4L796.0,458.7L796.4,464.7L800.9,468.5L800.0,478.9L799.6,477.6L797.9,477.1L797.5,478.2L796.6,479.1L795.7,480.0L795.3,480.6L795.1,481.4L795.4,482.2L796.0,482.7L796.8,483.3L797.1,483.9L796.8,484.6L795.8,485.8L795.3,486.8L786.8,491.3L783.5,487.5L778.7,485.0L771.3,486.3L770.6,486.0L769.9,485.7L764.4,483.0L760.1,480.9L755.5,478.1Z M817.4,293.1L812.4,293.3L805.3,291.8L804.6,276.1L804.2,266.6L815.5,272.8L822.2,272.5L830.4,268.3L841.9,271.6L842.1,274.2L842.1,275.2L842.2,276.4L842.4,280.3L842.5,283.8L842.6,285.2L842.7,286.2L842.8,288.8L842.9,291.5L825.8,297.0L817.4,293.1Z M474.4,50.8L504.0,51.1L504.0,62.9L503.9,80.7L474.2,80.4L474.4,50.8Z M762.8,298.0L760.9,306.4L762.8,312.9L763.0,314.5L764.7,316.3L729.1,322.9L725.2,312.5L709.6,301.5L705.6,299.6L727.0,299.1L762.8,298.0Z M631.1,709.2L631.3,722.0L631.4,728.0L629.8,728.4L622.5,728.8L620.3,730.0L614.9,729.1L608.2,728.0L606.8,727.3L599.3,722.5L596.1,718.9L594.5,718.1L587.2,715.9L592.6,703.4L593.6,701.4L602.9,680.1L623.2,680.0L623.4,691.2L625.1,691.5L622.4,702.5L631.0,703.4L631.1,709.2Z M737.8,256.4L737.7,255.0L737.3,240.2L744.5,234.1L752.7,230.1L767.9,229.0L768.2,228.3L769.3,256.5L749.1,257.4L737.8,256.4Z M462.7,388.1L446.8,388.2L428.7,388.1L429.6,357.6L432.1,357.6L462.7,358.4L462.7,388.1Z M617.3,226.1L617.4,228.4L620.8,228.4L621.0,257.7L613.4,257.7L592.4,257.6L592.4,231.3L592.4,226.5L617.3,226.1Z M720.4,529.9L720.1,549.5L713.9,547.8L705.1,548.0L704.9,547.4L704.6,546.7L703.3,546.8L701.6,547.4L700.9,547.6L696.8,538.2L691.9,533.7L689.4,526.8L683.0,524.1L699.2,510.1L700.1,511.0L720.4,529.9Z M302.4,412.9L280.7,429.4L274.9,429.1L212.9,411.6L216.5,409.4L265.1,381.6L294.2,405.8L302.4,412.9Z M607.9,647.6L607.1,593.7L628.1,593.5L633.3,597.5L625.2,605.2L625.0,622.1L618.0,622.2L618.4,647.6L607.9,647.6Z M503.7,261.1L525.1,261.4L525.1,291.4L524.1,291.4L494.6,290.8L494.9,261.1L503.7,261.1Z M565.7,477.0L565.4,452.8L584.8,452.6L595.1,466.2L581.7,479.3L573.9,481.2L565.7,477.0Z M328.8,365.9L339.2,373.2L342.7,371.6L348.0,369.5L362.1,378.9L364.2,386.2L375.5,392.2L387.5,393.6L393.2,397.9L399.5,416.6L386.2,416.2L384.7,416.1L378.1,415.9L377.9,419.9L366.0,419.5L365.5,440.8L352.4,440.5L351.9,456.2L316.2,425.0L302.4,412.9L294.2,405.8L328.8,365.9Z M280.7,429.4L279.8,457.4L278.1,507.4L275.5,506.2L270.4,505.0L268.2,504.6L264.5,503.3L257.8,498.4L256.4,497.0L253.9,492.9L252.7,490.5L251.1,489.2L249.5,488.8L247.7,488.1L243.5,485.7L236.7,479.9L235.4,477.4L234.9,474.8L235.0,473.9L234.1,471.0L230.5,464.1L228.6,461.2L227.9,460.5L227.4,453.8L228.1,448.8L228.3,442.9L227.2,439.1L224.4,434.5L223.3,433.5L218.9,428.1L218.5,420.7L215.6,413.8L213.1,412.9L212.4,411.9L274.9,429.1L280.7,429.4Z M665.3,591.5L659.8,588.4L655.3,588.9L648.5,585.8L658.0,570.4L670.6,559.0L677.3,559.1L681.3,562.4L686.7,561.8L694.3,568.2L693.4,569.0L692.9,570.0L692.7,571.2L692.7,572.3L692.9,573.2L693.0,574.1L673.3,578.0L679.3,583.6L672.2,589.6L665.3,591.5Z M821.3,330.3L793.5,331.5L790.7,331.5L789.9,311.7L789.3,295.9L809.1,295.1L811.2,295.7L812.4,293.3L817.4,293.1L812.9,306.4L812.5,322.0L817.5,321.7L821.3,330.3Z M802.4,423.0L792.5,429.3L784.4,433.9L775.9,430.1L772.7,423.5L773.6,399.3L777.9,395.9L781.1,401.4L785.2,404.1L785.2,410.1L790.0,410.9L791.7,417.7L803.4,419.7L802.4,423.0Z M648.5,585.8L655.3,588.9L659.8,588.4L665.3,591.5L673.1,603.1L672.5,603.7L671.9,604.6L670.3,607.9L670.0,608.5L668.8,608.7L668.0,608.5L667.7,607.6L667.2,606.9L666.8,606.3L666.2,605.1L665.4,604.8L664.1,604.9L663.2,605.1L662.2,605.5L660.0,607.0L658.6,605.3L645.9,606.8L639.8,602.7L632.9,601.7L633.3,597.5L628.1,593.5L626.8,589.6L631.9,585.3L646.9,588.2L648.5,585.8Z M398.7,476.1L397.3,475.7L391.6,474.6L388.0,474.2L382.3,474.8L377.9,474.5L369.4,470.2L368.3,469.5L367.4,468.7L366.0,468.6L351.9,456.2L352.4,440.5L365.5,440.8L366.0,419.5L377.9,419.9L378.1,415.9L384.1,416.1L386.0,416.1L399.5,416.5L406.2,419.0L406.5,423.0L400.8,432.4L405.5,436.7L399.6,441.4L398.7,475.7Z M369.3,348.0L371.0,348.1L400.5,348.7L399.7,387.6L369.3,386.4L369.3,348.0Z M460.9,487.4L460.8,501.3L458.0,512.5L455.1,513.3L445.7,506.0L443.3,504.9L440.9,501.4L440.5,500.4L439.6,498.4L438.0,497.6L435.0,497.3L429.3,493.7L428.7,487.4L424.8,484.6L423.1,484.3L419.7,477.8L416.7,476.9L406.7,476.6L406.1,477.5L405.4,477.7L398.7,476.1L399.6,441.4L446.2,442.2L461.4,442.3L460.9,487.4Z M743.4,442.4L745.2,442.2L747.3,442.0L747.8,452.5L738.4,447.9L747.1,473.1L735.1,477.5L734.0,472.5L729.7,470.0L729.4,461.4L731.5,458.8L727.8,454.5L725.0,450.2L726.7,445.3L730.6,443.9L743.4,442.4Z M564.4,647.5L541.5,647.3L539.3,644.2L534.3,647.9L533.2,647.8L531.8,647.0L529.7,645.1L529.2,644.4L531.1,641.7L531.9,639.4L532.2,638.0L532.7,632.9L530.3,626.9L529.0,624.8L525.4,622.4L524.1,622.2L521.5,622.6L510.9,613.3L508.9,611.1L507.4,607.2L507.3,606.4L507.8,604.5L506.2,603.3L502.1,598.3L498.2,591.5L496.8,588.6L496.4,587.9L493.0,586.5L491.4,586.0L489.6,585.0L494.9,584.5L537.8,584.2L538.1,596.0L573.1,594.0L573.7,641.7L573.8,647.5L564.4,647.5Z M547.6,167.6L547.7,168.5L547.6,170.7L548.8,175.9L550.7,176.5L552.8,176.8L556.1,176.6L561.3,176.8L562.1,177.2L562.2,201.8L532.9,201.8L532.9,184.7L532.9,163.7L534.1,164.2L534.8,165.2L536.7,165.3L539.5,160.5L544.8,163.2L547.6,167.6Z M342.5,317.7L341.6,347.2L311.2,346.3L312.1,322.6L314.9,322.7L318.5,322.8L325.7,323.0L327.1,323.1L327.3,317.2L342.5,317.7Z M355.9,258.8L329.2,258.0L329.3,255.2L329.4,252.6L330.1,240.3L330.4,233.8L330.4,232.8L330.6,228.8L356.7,229.6L355.9,258.8Z M564.5,680.2L561.1,687.8L551.4,694.8L549.1,686.8L547.1,680.1L545.5,676.4L542.3,672.1L538.8,670.2L534.7,664.3L534.4,661.6L535.7,659.4L535.9,653.9L535.0,648.9L534.4,647.9L539.3,644.2L541.5,647.3L564.4,647.5L564.5,680.2Z M830.5,372.0L842.3,380.0L823.5,385.4L817.4,383.9L800.9,378.7L796.5,365.9L793.6,362.6L793.2,362.1L792.4,361.8L792.1,361.0L791.4,360.6L790.9,360.1L798.5,352.9L806.6,357.3L817.3,358.6L818.2,360.8L820.2,360.2L830.5,372.0Z M689.7,592.0L685.3,596.9L683.1,599.6L681.1,602.3L679.3,605.2L678.7,606.4L678.5,607.4L677.9,607.0L678.6,605.9L680.3,602.7L681.9,599.4L682.4,597.9L682.3,596.2L682.9,594.9L683.8,595.2L684.1,594.5L685.0,593.8L685.1,592.8L686.5,591.0L687.4,591.0L687.5,589.4L687.6,588.2L688.0,587.3L688.9,587.6L689.4,588.3L690.1,588.7L691.0,588.5L690.5,589.4L690.2,590.4L690.0,591.3L689.7,592.0ZM693.0,574.4L692.1,575.9L692.1,576.9L692.6,577.6L693.3,578.7L692.6,580.9L692.0,581.3L690.1,583.0L688.3,584.2L686.9,585.8L686.1,586.2L684.7,587.8L683.0,587.9L680.8,587.0L679.2,587.9L679.5,589.1L679.0,590.0L678.8,591.4L679.0,592.7L679.4,593.5L678.5,594.4L678.1,594.9L677.3,596.7L676.5,597.3L673.9,601.7L673.1,603.1L665.4,591.7L672.2,589.6L679.3,583.6L673.3,578.0L693.0,574.4Z M799.0,204.9L799.7,205.7L803.9,207.6L811.5,210.3L813.6,209.6L813.8,208.7L814.3,209.8L814.8,210.8L818.4,213.2L821.5,214.8L826.9,211.9L831.1,210.9L836.6,211.9L837.6,212.3L839.0,213.3L839.2,217.3L839.3,218.9L839.4,221.2L839.5,222.3L839.6,225.2L839.7,226.4L839.8,228.4L840.0,232.4L839.2,230.6L830.0,231.1L829.5,235.0L821.0,234.4L818.9,232.5L813.1,232.9L810.1,235.3L805.6,234.2L800.1,230.3L799.0,204.9Z M278.1,507.4L279.8,457.4L280.7,429.4L302.4,412.9L316.2,425.0L351.9,456.2L366.1,468.4L363.4,470.7L362.0,476.3L360.9,476.0L359.2,475.2L356.2,474.4L355.3,474.7L352.1,476.8L348.7,476.8L345.6,477.4L344.1,478.4L343.6,480.2L340.6,487.1L338.3,490.5L336.7,491.8L335.2,497.5L335.0,499.4L332.4,503.1L331.1,507.8L331.6,510.4L332.4,510.7L332.7,511.9L332.0,512.5L327.6,515.0L324.9,516.0L318.2,524.4L317.5,527.7L315.0,528.4L307.6,527.0L301.7,524.5L296.7,520.8L294.9,517.8L293.6,516.5L291.7,515.2L288.7,514.4L287.7,514.5L282.5,512.9L279.5,510.0L278.2,507.4Z M714.2,434.9L698.4,440.0L692.6,438.6L679.2,422.7L698.8,410.4L700.1,410.6L700.3,411.5L701.9,412.4L701.7,413.2L701.0,413.6L701.2,414.9L700.5,415.7L700.1,416.5L705.4,417.3L714.4,422.9L718.6,429.4L718.8,430.1L718.8,430.9L719.7,431.3L719.3,431.9L718.2,431.7L718.0,432.4L718.4,433.4L717.4,433.5L715.8,434.6L714.7,434.4L714.2,434.9Z M700.4,548.1L699.9,548.6L700.3,549.2L701.7,550.4L701.7,551.4L702.4,551.7L703.2,552.4L702.6,553.2L703.2,556.0L705.4,556.1L706.0,556.6L707.7,557.7L708.6,558.0L709.1,559.3L709.6,559.9L713.0,562.2L714.8,563.8L715.4,564.3L715.9,565.0L712.4,566.9L711.2,567.9L709.9,568.6L709.0,568.9L707.6,569.5L706.7,570.1L706.0,570.7L704.8,571.5L701.3,572.3L700.0,573.1L699.0,572.3L698.0,572.3L698.3,570.8L697.9,568.8L696.9,568.2L695.3,568.3L694.5,568.1L686.7,561.8L684.2,556.4L688.7,553.1L700.4,548.1ZM720.1,549.5L720.2,551.8L717.3,552.9L716.6,553.6L711.4,556.7L710.6,556.9L710.9,556.2L711.0,555.1L710.6,554.3L709.1,553.9L709.9,553.2L709.4,552.3L707.0,551.9L706.0,552.0L705.3,550.4L706.1,549.1L705.6,548.4L713.9,547.8L720.1,549.5ZM691.0,588.5L691.8,588.0L692.1,586.8L691.7,585.4L691.3,584.7L693.1,583.2L696.6,583.0L698.4,582.5L698.4,581.6L699.4,581.1L700.8,580.4L701.4,578.8L704.0,577.0L704.8,575.6L705.5,575.2L707.2,575.2L707.8,574.2L708.6,573.8L711.7,573.1L713.2,572.7L714.2,572.1L715.1,571.4L715.2,570.6L716.0,570.2L716.4,572.1L715.4,573.2L713.9,573.9L707.6,577.3L703.2,580.2L699.0,583.5L695.2,586.7L689.9,591.7L690.2,590.4L690.6,589.7L690.9,588.8Z M833.2,485.5L833.1,482.6L830.9,482.7L830.7,484.4L825.0,486.7L824.3,486.5L823.8,485.7L823.2,485.1L822.4,484.7L821.5,484.8L820.1,485.6L819.2,486.0L818.5,486.2L815.0,487.3L812.9,487.8L811.6,488.4L810.7,488.5L809.8,488.4L809.1,487.9L808.7,487.1L809.7,487.0L810.6,486.0L811.8,484.5L813.2,481.6L813.9,476.9L813.7,474.9L811.8,471.5L811.1,470.8L809.1,471.7L807.9,472.2L806.5,472.9L804.5,475.4L803.8,477.2L803.7,478.4L802.2,479.6L800.9,480.0L800.0,478.9L800.9,468.5L796.4,464.7L828.0,463.0L833.0,462.9L834.2,485.0L833.2,485.5Z M591.1,347.6L589.4,344.9L579.3,346.6L564.5,321.0L579.5,312.3L585.7,308.4L598.8,330.0L603.1,327.3L605.6,331.6L608.7,336.7L591.1,347.6Z M669.7,228.4L651.0,228.1L645.1,228.0L644.7,195.2L646.2,196.2L646.6,196.9L646.6,198.3L646.3,199.3L646.0,200.2L646.5,201.1L648.1,201.7L651.1,201.7L654.5,198.0L659.2,195.0L660.0,194.9L661.5,195.9L662.6,199.5L662.4,200.4L661.1,200.7L660.5,201.5L660.5,202.8L662.5,207.0L663.0,207.5L663.7,208.0L664.4,208.2L665.4,208.3L666.1,208.0L666.7,207.6L669.3,201.4L671.6,198.3L672.7,196.6L673.4,193.3L674.9,192.4L675.8,228.5L669.7,228.4Z M622.8,651.0L618.4,647.6L618.0,622.2L625.0,622.1L631.2,627.2L662.2,626.5L661.5,628.8L661.1,629.5L660.9,630.5L660.7,632.1L660.2,633.5L659.9,634.0L659.5,635.8L659.7,636.6L659.5,637.4L659.1,638.2L658.0,641.3L657.7,642.3L657.2,642.9L656.1,643.4L654.9,643.4L653.0,644.5L651.5,646.1L650.1,645.9L649.3,645.5L650.4,645.0L650.9,644.1L652.1,643.8L651.8,642.9L652.9,641.8L652.7,640.4L651.8,639.9L651.0,640.2L650.7,640.8L649.6,642.0L647.7,643.4L646.9,643.8L645.4,645.5L644.1,645.5L624.8,649.4L622.8,651.0ZM677.9,607.0L678.5,607.4L676.2,610.5L674.4,613.3L671.5,618.5L669.5,622.7L668.3,625.3L665.2,632.5L663.6,636.9L662.4,641.0L661.2,645.7L659.7,645.7L660.0,644.3L660.5,643.7L660.2,642.4L660.2,640.2L661.1,638.1L661.7,637.3L662.0,636.6L662.0,635.1L662.8,633.1L664.1,630.8L664.7,629.1L665.7,627.7L666.2,626.7L666.0,626.0L666.5,625.2L667.4,623.9L667.0,623.3L667.7,621.6L668.7,621.6L669.5,620.3L669.7,619.3L669.7,618.4L669.3,617.8L670.1,617.4L671.2,615.5L671.5,614.7L672.6,614.5L673.6,613.3L675.1,610.8L675.4,609.5L675.7,608.7L673.7,608.7L677.9,607.1Z M601.2,593.7L573.1,594.0L573.0,554.0L600.7,553.7L600.7,556.1L601.2,593.7Z M828.0,259.5L841.1,258.9L841.6,264.5L841.7,265.7L841.9,271.6L830.4,268.3L822.2,272.5L815.5,272.8L804.2,266.6L803.7,260.7L806.6,260.6L828.0,259.5Z M720.2,551.8L720.1,549.5L720.4,529.9L740.4,516.9L745.6,511.1L747.5,519.3L752.1,521.9L752.6,528.6L757.7,528.6L764.6,537.6L768.2,537.8L764.7,540.3L750.5,549.3L746.3,551.6L739.5,554.8L735.0,557.1L728.2,561.0L726.6,561.8L725.2,562.9L723.7,563.9L721.8,565.3L720.7,566.5L719.6,567.0L717.8,568.4L717.4,569.4L717.6,568.1L719.9,565.6L723.8,562.8L726.4,561.5L726.9,560.5L731.0,558.0L733.4,557.0L736.8,555.0L737.6,554.8L739.1,554.1L740.3,553.6L740.3,552.6L740.4,551.1L740.2,550.2L739.2,550.2L737.4,550.5L736.6,550.8L735.1,551.8L733.6,552.5L730.7,553.5L728.4,554.8L727.7,555.3L726.4,555.8L725.6,554.7L726.3,553.9L726.8,553.5L725.7,551.6L727.0,550.2L727.9,548.4L727.7,547.7L726.1,547.8L724.1,548.7L723.4,548.5L722.2,548.9L721.3,549.7L721.4,551.5L720.2,551.8Z M644.7,195.2L645.1,228.0L620.8,228.4L617.4,228.4L617.3,226.1L617.0,197.4L617.6,198.0L622.7,200.1L625.1,199.5L627.8,197.2L630.7,194.1L632.5,191.6L632.9,190.8L634.1,190.3L634.9,190.4L637.6,191.8L638.7,192.8L638.3,195.2L638.9,196.2L640.4,196.5L641.3,196.3L642.7,195.4L643.7,195.0L644.6,195.2Z M335.2,110.3L335.3,108.7L335.3,107.4L383.8,108.5L383.0,138.0L363.2,137.6L334.4,136.7L334.5,133.6L334.6,129.7L334.7,126.3L334.8,122.7L335.2,110.3Z M659.7,645.7L661.2,645.7L660.3,650.3L659.9,653.7L659.6,657.7L659.6,661.3L659.7,665.1L660.3,670.7L660.7,673.3L661.6,677.5L662.8,682.4L664.9,689.2L665.7,691.5L666.5,693.9L666.9,694.6L669.5,702.7L669.9,704.2L671.8,711.3L672.4,714.0L673.2,719.0L674.1,726.0L674.6,727.5L673.6,726.7L673.5,725.1L672.9,722.1L672.9,720.0L672.6,717.5L671.8,713.7L670.5,708.1L669.7,706.0L668.9,704.6L668.6,702.7L668.3,701.2L667.9,700.2L667.4,699.4L666.5,696.8L665.5,696.4L664.4,694.5L664.5,693.5L663.9,691.7L663.4,690.8L662.6,688.4L662.7,687.1L662.1,684.8L661.0,684.2L660.5,683.3L660.7,682.1L660.9,680.9L660.6,679.8L660.6,678.4L660.3,677.5L659.4,676.7L659.5,673.0L659.4,672.1L659.0,671.2L659.1,668.3L658.9,661.1L658.9,660.0L659.1,659.0L658.8,658.2L658.8,654.0L659.5,651.1L658.9,650.7L659.2,649.1L659.6,647.6L659.6,645.8ZM643.8,645.8L643.6,646.5L643.6,647.7L644.3,648.4L646.2,648.4L647.1,648.5L648.4,649.0L649.5,649.2L650.9,649.1L651.9,648.5L652.9,647.7L654.0,647.5L654.5,647.1L656.6,646.7L656.0,650.9L655.5,654.9L655.6,656.8L654.9,657.2L654.5,658.2L653.7,658.0L652.7,657.9L652.7,659.4L653.6,660.2L653.1,660.8L653.1,662.3L653.9,662.7L653.6,664.7L650.1,664.8L649.4,665.0L649.3,666.1L649.4,667.1L649.2,668.0L649.1,668.9L650.0,671.1L649.6,671.9L649.3,673.7L648.7,675.5L649.4,676.4L650.3,676.6L652.0,678.0L653.6,680.7L654.4,681.0L654.6,682.2L654.7,684.3L656.1,689.5L656.1,691.1L656.4,691.7L630.9,692.3L625.1,691.5L623.4,691.2L623.2,680.0L622.8,651.0L624.8,649.4L643.8,645.8Z M342.5,317.7L371.8,318.5L371.1,348.1L369.3,348.0L343.5,347.3L341.6,347.2L342.5,317.7Z M145.0,350.9L144.3,349.9L142.5,345.2L137.3,334.3L136.0,332.2L134.0,330.7L132.9,330.3L130.9,330.6L127.8,328.2L127.5,327.3L126.9,326.7L125.9,326.1L123.7,323.7L122.7,323.2L123.5,316.7L124.7,313.2L126.6,313.3L135.5,313.9L136.4,313.9L137.4,314.0L141.0,314.2L147.2,314.6L148.6,314.6L153.3,314.9L159.1,315.2L156.6,357.0L156.1,356.5L150.9,354.7L149.0,353.9L145.1,351.0Z M532.9,184.7L532.9,201.8L532.9,208.6L525.9,205.0L512.6,201.7L503.6,201.6L500.7,201.6L500.9,174.9L503.6,175.3L516.2,184.2L522.9,183.8L528.8,186.8L532.9,184.7Z M704.1,337.9L729.0,322.5L728.7,326.3L730.9,326.1L730.8,331.5L732.8,332.3L733.7,337.8L739.8,339.6L740.8,344.2L744.7,345.9L745.2,348.7L719.8,363.5L704.1,337.9Z M377.8,259.4L377.4,289.0L328.3,287.6L328.4,283.2L328.4,282.2L328.5,280.7L328.5,279.2L328.6,276.7L328.7,275.0L328.7,273.7L328.8,270.3L328.9,266.9L329.0,265.4L329.0,264.1L329.1,262.0L329.2,258.0L355.9,258.8L377.8,259.4Z M474.0,110.0L473.6,139.4L451.1,139.3L443.0,139.1L443.6,109.7L474.0,110.0Z M833.2,485.5L825.8,489.2L820.3,492.0L818.3,493.2L816.0,494.7L814.7,495.8L813.8,496.7L813.0,498.0L812.6,499.0L810.8,499.6L809.8,499.7L809.5,498.7L810.4,497.5L811.2,496.9L812.9,495.1L813.9,494.4L815.0,492.3L815.8,491.6L816.7,491.4L817.3,491.7L818.4,491.5L819.5,491.0L820.3,490.3L820.2,489.3L821.0,488.0L821.8,487.6L823.0,488.0L823.9,488.4L825.1,488.2L826.0,487.8L825.5,486.6L830.7,484.4L830.9,482.7L833.1,482.6L833.2,485.5ZM783.2,490.4L783.3,489.5L783.4,488.7L783.5,487.6L786.8,491.3L795.2,487.2L795.4,488.1L796.4,489.4L797.4,490.0L798.8,490.4L800.2,490.6L801.7,490.8L800.9,492.7L800.6,494.0L803.0,495.1L803.3,496.3L803.5,499.6L803.1,501.5L803.2,503.6L803.7,504.3L804.3,504.6L805.8,504.2L807.3,503.5L807.4,502.5L807.3,500.9L808.0,500.3L809.5,501.4L811.9,501.4L812.7,501.1L813.2,501.6L810.5,503.5L809.6,504.5L808.6,505.3L795.8,514.8L792.7,517.4L791.0,519.0L790.5,519.7L793.9,511.3L782.8,493.7L782.9,492.7L783.2,491.1Z M620.4,309.9L613.1,291.1L613.2,287.9L638.8,287.7L639.2,303.8L629.6,304.1L620.4,309.9Z M774.9,349.4L780.5,349.7L785.1,357.3L790.9,360.1L791.2,360.7L792.1,361.0L792.5,361.7L793.2,362.1L793.6,362.6L766.9,386.0L756.6,395.1L752.8,391.4L753.6,384.8L747.7,384.3L749.6,372.2L753.4,368.9L748.2,356.4L753.2,353.7L774.9,349.4Z M212.4,411.9L209.2,407.7L204.5,403.0L199.9,399.3L197.6,399.3L196.8,399.0L189.5,394.8L188.6,392.4L180.6,385.4L179.5,383.3L179.4,382.1L179.2,380.7L178.2,378.9L175.7,376.5L172.3,374.9L170.0,372.9L167.7,370.2L163.7,364.1L161.9,363.2L160.6,362.3L157.6,357.8L156.6,357.0L159.1,315.2L164.7,315.6L191.7,317.2L193.9,317.3L207.4,318.0L208.6,318.1L211.7,318.3L220.9,318.7L217.6,397.8L216.5,409.4L212.8,411.6Z M834.2,485.0L833.0,462.9L828.0,463.0L827.1,447.9L836.0,447.1L840.7,442.1L846.2,443.7L851.6,452.4L861.8,455.3L863.2,459.6L860.5,464.5L860.3,469.4L864.1,474.7L863.3,475.8L862.5,476.0L861.1,476.0L858.7,475.8L854.5,475.8L851.3,476.7L847.0,478.6L834.2,485.0Z M700.8,287.1L700.9,268.8L713.5,268.4L713.4,266.6L726.0,266.4L727.0,299.1L705.6,299.6L700.8,287.1Z M817.5,321.7L812.5,322.0L812.9,306.4L817.4,293.1L825.8,297.0L843.0,292.0L843.0,293.3L843.4,300.3L843.6,303.8L843.6,305.3L843.7,307.3L843.8,309.3L843.9,310.5L844.1,314.8L844.3,318.7L845.9,319.9L817.5,321.7Z M533.0,231.4L533.1,261.4L525.1,261.4L503.7,261.1L503.8,231.4L533.0,231.4Z M413.9,109.2L383.8,108.5L384.8,78.9L414.5,79.5L413.9,109.1Z";
+const STATE_D = "M388.0,474.2L381.8,475.1L377.9,474.5L367.4,468.7L365.9,468.6L363.4,470.7L362.0,476.3L356.2,474.4L352.1,476.8L345.6,477.4L344.1,478.4L340.6,487.1L338.3,490.5L336.7,491.8L335.0,499.4L332.4,503.1L331.1,507.8L331.6,510.4L332.4,510.7L332.7,511.9L324.9,516.0L318.2,524.4L317.5,527.7L314.6,528.5L307.6,527.0L301.7,524.5L296.7,520.8L296.7,520.2L294.9,517.8L291.7,515.2L282.5,512.9L279.5,510.0L278.2,507.4L264.5,503.3L256.4,497.0L252.7,490.5L243.5,485.7L236.7,479.9L235.4,477.4L234.1,471.0L230.5,464.1L227.9,460.5L227.4,453.8L228.3,442.9L227.2,439.1L224.4,434.5L218.9,428.1L218.5,420.7L215.6,413.8L213.1,412.9L209.2,407.7L204.5,403.0L199.9,399.3L196.8,399.0L189.5,394.8L188.6,392.4L180.6,385.4L178.2,378.9L175.7,376.5L172.3,374.9L170.0,372.9L163.7,364.1L160.6,362.3L157.6,357.8L156.1,356.5L149.0,353.9L144.8,350.7L136.0,332.2L132.9,330.3L130.9,330.6L122.4,322.6L123.6,316.2L124.7,313.2L327.1,323.1L329.3,255.2L332.7,186.1L338.2,19.4L340.4,18.0L504.2,21.0L503.6,152.5L506.1,151.3L507.9,151.5L516.6,161.3L520.6,164.9L525.0,165.1L527.3,162.2L530.6,162.4L534.1,164.2L534.8,165.2L536.7,165.3L539.5,160.5L544.8,163.2L547.6,167.6L547.6,170.7L548.8,175.9L552.8,176.8L561.3,176.8L567.4,180.1L572.6,181.2L576.3,181.2L579.0,179.4L581.9,179.5L584.5,181.3L587.3,185.4L589.0,185.9L595.1,179.6L597.3,180.0L599.1,181.2L606.1,182.4L610.9,189.8L613.3,190.5L616.6,189.9L618.7,190.6L618.3,194.3L617.0,197.4L622.7,200.1L625.1,199.5L627.8,197.2L632.9,190.8L634.1,190.3L638.7,192.8L638.3,195.2L638.9,196.2L640.7,196.6L643.7,195.0L646.2,196.2L646.6,198.3L646.0,200.2L646.5,201.1L648.1,201.7L651.1,201.7L654.5,198.0L660.0,194.9L661.7,196.3L662.6,199.5L662.4,200.4L660.8,200.9L660.5,202.8L662.5,207.0L664.4,208.2L666.7,207.6L669.3,201.4L672.7,196.6L673.4,193.3L676.2,191.6L677.5,193.3L678.5,197.8L680.1,199.1L685.4,200.6L688.2,200.0L689.1,198.7L690.0,195.8L691.1,195.3L693.5,196.5L693.8,199.7L700.2,203.7L704.5,203.3L707.7,207.3L711.2,205.2L716.0,205.0L718.1,204.1L718.8,203.4L719.9,198.7L731.0,197.0L738.0,198.1L741.4,197.3L741.8,196.0L750.4,191.1L752.7,191.3L753.7,194.7L761.4,195.4L768.1,194.6L769.9,193.3L770.2,191.9L769.9,190.5L771.3,188.5L780.4,191.2L782.1,194.9L792.0,202.3L798.1,203.3L799.7,205.7L811.5,210.3L813.6,209.6L813.8,208.7L815.2,211.3L821.5,214.8L827.1,211.6L831.1,210.9L836.6,211.9L839.0,213.3L844.3,318.7L845.9,319.9L848.4,323.6L851.7,325.8L856.6,331.6L858.5,337.3L857.6,346.1L859.9,349.5L864.1,352.5L866.3,357.7L869.6,360.0L868.1,365.1L871.5,367.5L872.7,373.3L873.4,373.9L875.6,372.4L876.6,372.7L877.2,379.9L876.7,384.4L877.6,390.1L876.2,393.9L876.1,397.4L867.4,414.5L866.8,416.9L868.7,419.0L869.6,423.6L866.3,427.0L866.1,430.9L867.9,433.1L868.8,433.3L869.7,440.2L870.8,443.3L870.1,448.8L868.0,452.4L865.9,454.4L860.5,464.5L860.3,469.4L864.1,474.7L862.5,476.0L854.5,475.8L847.0,478.6L820.3,492.0L814.7,495.8L812.6,499.0L809.8,499.7L809.5,498.7L810.4,497.5L813.9,494.4L815.8,491.6L819.5,491.0L820.3,490.3L820.4,488.8L821.8,487.6L823.9,488.4L826.0,487.8L825.5,486.6L824.3,486.5L822.4,484.7L811.6,488.4L809.2,488.2L808.6,487.0L809.7,487.0L810.6,486.0L813.2,481.6L813.9,476.9L813.7,474.9L811.8,471.5L810.8,470.7L806.5,472.9L804.5,475.4L803.4,478.9L802.2,479.6L800.6,479.9L799.6,477.6L797.9,477.1L795.1,481.4L797.1,483.9L795.2,487.1L796.4,489.4L797.4,490.0L801.7,490.8L800.6,494.0L803.0,495.1L803.2,503.6L803.7,504.3L804.9,504.5L807.3,503.5L807.3,500.9L808.0,500.3L809.5,501.4L812.7,501.1L813.2,501.6L792.7,517.4L790.2,520.5L783.7,526.1L775.5,534.7L772.1,535.3L750.5,549.3L726.6,561.8L717.8,568.4L717.4,569.4L717.7,568.0L719.9,565.6L726.4,561.5L726.9,560.5L740.3,553.6L740.7,550.5L739.6,550.0L739.0,550.8L736.6,550.8L725.9,555.7L725.6,554.3L726.8,552.9L725.7,551.6L728.0,548.0L726.1,547.8L722.2,548.9L721.3,549.7L721.4,551.5L717.3,552.9L710.6,556.9L711.0,555.1L710.6,554.3L709.1,553.9L709.9,553.2L709.8,552.5L706.0,552.0L705.3,550.4L706.1,548.8L705.0,547.9L704.6,546.7L700.8,547.7L699.9,548.6L701.7,550.4L701.7,551.4L703.2,552.4L702.5,553.6L703.2,556.0L705.9,556.2L706.2,557.0L708.3,557.8L709.6,559.9L714.8,563.8L715.8,565.4L704.8,571.5L700.0,573.1L698.0,572.3L698.3,570.8L697.6,568.3L693.7,568.5L692.7,571.3L692.9,574.9L691.9,576.4L693.3,578.7L692.6,580.9L684.7,587.8L683.0,587.9L680.8,587.0L679.2,587.9L679.5,589.1L678.8,591.4L679.4,593.5L673.4,601.9L670.1,608.5L667.8,608.4L666.2,605.1L664.8,604.7L661.7,605.7L658.6,607.8L657.8,609.4L657.8,611.5L659.3,614.3L662.5,616.2L666.2,617.2L663.8,622.9L664.0,624.2L662.4,625.8L659.9,634.0L659.5,637.4L657.8,641.9L656.8,643.1L653.0,644.5L651.5,646.1L650.1,645.9L649.2,645.1L650.4,645.0L650.9,644.1L652.1,643.8L651.8,642.9L652.9,641.8L652.7,640.4L651.8,639.9L645.4,645.5L644.1,645.5L643.6,646.5L644.3,648.4L649.5,649.2L656.6,646.7L655.6,656.8L654.5,658.2L653.4,657.8L652.5,658.3L652.7,659.4L653.6,660.2L653.0,661.1L653.1,662.3L653.9,662.7L653.6,664.7L650.1,664.8L649.0,665.4L649.1,668.9L650.0,671.5L649.3,672.3L648.7,675.5L652.0,678.0L653.6,680.7L654.4,681.0L656.1,691.1L657.9,694.8L657.2,698.0L657.4,699.5L656.6,701.5L658.4,702.0L658.0,704.4L658.8,704.6L659.4,704.1L661.0,705.6L659.9,707.5L659.8,709.8L661.8,708.1L663.5,708.5L662.0,711.0L662.5,711.2L662.7,714.1L664.7,713.7L665.0,715.1L664.2,716.7L665.7,718.6L665.2,721.4L666.7,724.0L665.9,724.8L667.4,726.3L671.8,726.8L672.1,729.2L670.3,730.4L670.9,732.5L672.1,732.5L673.9,731.5L674.1,730.4L672.9,728.4L674.7,727.8L675.2,733.9L662.9,736.9L662.1,737.9L661.9,740.0L659.4,742.0L653.0,740.0L648.6,736.7L643.1,730.3L629.8,728.4L622.5,728.8L620.3,730.0L608.2,728.0L599.3,722.5L596.1,718.9L587.2,715.9L584.9,715.7L584.3,716.4L579.8,714.6L577.0,710.9L573.6,708.4L570.3,708.6L559.0,705.9L555.5,703.8L551.6,695.7L547.1,680.1L545.5,676.4L542.3,672.1L538.8,670.2L534.7,664.3L534.4,661.6L535.7,659.4L535.9,653.9L535.0,648.9L534.4,647.9L531.8,647.0L529.2,644.4L531.9,639.4L532.7,632.9L530.3,626.9L529.0,624.8L525.4,622.4L521.5,622.6L510.9,613.3L508.9,611.1L507.4,607.2L507.8,604.5L502.1,598.3L496.6,588.2L489.6,585.0L484.3,579.2L481.0,570.2L481.9,564.0L478.7,563.0L477.7,561.5L476.2,557.3L472.1,552.9L471.4,549.9L471.7,547.5L470.1,543.1L463.9,535.5L463.3,533.7L463.6,530.8L462.0,523.0L454.9,513.0L445.7,506.0L443.3,504.9L440.9,501.4L439.6,498.4L435.0,497.3L429.3,493.7L428.5,487.0L424.8,484.6L423.1,484.3L419.7,477.8L416.7,476.9L406.7,476.6L405.4,477.7L388.0,474.2ZM660.3,670.7L662.8,682.4L671.8,711.3L674.6,727.5L673.6,726.7L672.6,717.5L670.5,708.1L666.5,696.8L665.5,696.4L664.4,694.5L664.5,693.2L662.6,688.4L662.1,684.8L660.5,683.3L660.6,678.4L659.4,676.7L658.8,654.0L659.5,651.1L658.9,650.7L659.6,645.8L660.5,643.7L660.0,642.0L660.2,640.2L662.0,636.6L662.8,633.1L667.4,623.9L667.0,623.3L667.7,621.6L668.7,621.6L669.5,620.3L669.3,617.8L670.1,617.4L671.5,614.7L672.6,614.5L673.6,613.3L675.1,610.8L675.7,608.7L673.2,608.4L677.9,607.1L680.3,602.7L680.2,602.0L681.9,599.4L682.4,597.9L681.8,597.6L682.9,594.9L683.2,595.4L683.8,595.2L685.3,593.3L685.3,592.4L687.7,590.5L688.0,587.3L690.1,588.7L691.2,588.5L692.1,587.5L691.3,584.7L691.7,584.2L693.1,583.2L698.4,582.5L698.8,582.1L698.4,581.2L700.8,580.4L701.4,578.8L704.0,577.0L704.8,575.6L707.2,575.2L708.6,573.8L713.2,572.7L716.0,570.2L716.4,572.1L715.4,573.2L703.2,580.2L689.9,591.7L681.1,602.3L678.5,607.6L676.2,610.5L671.5,618.5L665.2,632.5L661.0,646.4L659.6,657.7L660.3,670.7Z";
+
+
+const CITIES=[["Lubbock",398.5,217.6,"start",8,4],["El Paso",129.9,329.9,"end",-8,-6],
+ ["Midland",383.5,325.3,"start",14,22],["Houston",774,474,"start",8,4],
+ ["Laredo",530.9,631.3,"start",8,10]];
+
+const REGIONS=[["PANHANDLE",196,44,"start"],["PERMIAN BASIN / WEST TEXAS",150,566,"start"],
+ ["I-35 CORRIDOR",706,566,"start"]];
+
+/* camp 1=Stargate  2=hyperscaler self-build  3=neocloud/AI-lab/independent
+   kind it=contracted IT (solid)  plan=master-plan or generation cap (dashed)  cluster=metro/county roll-up */
+const D=[
+/* ---------- PANHANDLE & NORTHWEST ---------- */
+ {c:"P1",n:"Google Meitner Energy Center",gw:1.0,kind:"plan",camp:2,x:454.2,y:88.3,lx:356,ly:62,an:"end",lead:1,
+  reg:"Panhandle & Northwest",sl:"1 GW · Gray/Roberts Co.",loc:"Gray & Roberts counties, Pampa",
+  op:"Google with Intersect Power (acquired Mar 2026, $4.75B)",pw:">1 GW co-located wind, solar and storage plus gas firming",
+  st:"Under construction; IT capacity not disclosed",sc:"build",note:"800-acre Caprock workforce village for 3,500 on site"},
+ {c:"P2",n:"Fermi America · Project Matador",gw:11,kind:"plan",camp:3,x:423.6,y:102.8,lx:356,ly:100,an:"end",lead:1,
+  reg:"Panhandle & Northwest",sl:"11 GW · Carson Co.",loc:"Carson County, east of Amarillo — 5,800 acres on Texas Tech System land",
+  op:"Fermi America (IPO Nov 2025, ~$14.8B valuation)",pw:"6 GW gas preliminarily approved; four AP1000 reactors planned; wind and solar",
+  st:"Permitting and early works; first 1.1 GW targeted 2026",sc:"plan",
+  note:"Largest single announced campus anywhere — ceiling, not contracted load"},
+ {c:"P3",n:"Google Armstrong County",gw:0.933,kind:"plan",camp:2,x:428.4,y:114.4,lx:356,ly:138,an:"end",lead:1,
+  reg:"Panhandle & Northwest",sl:"933 MW · Armstrong Co.",loc:"Armstrong County, Claude — 1,300 acres",
+  op:"Google (tenant); built by Crusoe Energy",pw:"933 MW gas permit (Goodnight) plus Panhandle wind",
+  st:"Broke ground May 2025; completion late 2028 / early 2029",sc:"build",note:""},
+ {c:"P4",n:"Hut 8 Vega",gw:0.205,kind:"it",camp:3,x:369.4,y:104.3,lx:356,ly:176,an:"end",lead:1,
+  reg:"Panhandle & Northwest",sl:"205 MW · Oldham Co.",loc:"Oldham County, Vega",
+  op:"Hut 8",pw:"Grid; proprietary liquid cooling",st:"Energized; 162,000 sq ft, mining with AI conversion optionality",sc:"live",note:""},
+ {c:"P5",n:"IREN Childress",gw:0.75,kind:"it",camp:3,x:491.8,y:161.2,lx:566,ly:150,an:"start",lead:1,
+  reg:"Panhandle & Northwest",sl:"750 MW · Childress Co.",loc:"Childress County",
+  op:"IREN",pw:"ERCOT grid",st:"Operating and expanding; part of IREN's 2.75 GW West Texas position",sc:"live",note:""},
+ {c:"P6",n:"Google Wilbarger County",gw:null,kind:"plan",camp:2,x:544.4,y:180.4,lx:566,ly:188,an:"start",lead:0,
+  reg:"Panhandle & Northwest",sl:"n/d · Wilbarger Co.",loc:"Wilbarger County, Vernon",
+  op:"Google",pw:"Not disclosed",st:"Announced within the $40B Texas package; size not disclosed",sc:"plan",note:""},
+ {c:"P7",n:"Abernathy cluster",gw:0.708,kind:"it",camp:3,x:399,y:200.6,lx:356,ly:214,an:"end",lead:1,
+  reg:"Panhandle & Northwest",sl:"708 MW · Hale Co.",loc:"Hale County, Abernathy (north of Lubbock)",
+  op:"Aligned Data Centers (Project Caprock, 540 MW) + Fluidstack (168 MW, ex-TeraWulf JV)",
+  pw:"Closed-loop liquid cooling to protect the Ogallala aquifer",
+  st:"Caprock broke ground Apr 2026; first hall LBB-01 Q1 2027; ~$5B regional investment",sc:"build",
+  note:"Two adjacent projects shown as one marker"},
+ {c:"P8",n:"Galaxy Helios",gw:1.6,kind:"plan",camp:3,x:456.6,y:215.9,lx:356,ly:252,an:"end",lead:1,
+  reg:"Panhandle & Northwest",sl:"1.6 GW · Dickens Co.",loc:"Dickens County — 2,200+ acres",
+  op:"Galaxy Digital; CoreWeave is the anchor tenant on 15-year leases",
+  pw:"ERCOT-approved 1.6 GW; two further 1 GW requests in study (3.6 GW potential)",
+  st:"Phase I complete Q2 2026 (133 MW critical IT delivered); Phase II 260 MW from Q2 2027",sc:"live",
+  note:"Funded by a $3.5B senior secured note offering, Jul 2026"},
+/* ---------- WEST TEXAS / PERMIAN ---------- */
+ {c:"W1",n:"Meta El Paso",gw:1.0,kind:"it",camp:2,x:142.3,y:324.6,lx:118,ly:356,an:"start",lead:1,
+  reg:"West Texas / Permian",sl:"1 GW · El Paso Co.",loc:"El Paso County — 1,000 acres",
+  op:"Meta with BlackRock, GIP and HPS (80% of the JV)",pw:"El Paso Electric — Western Interconnection, outside ERCOT",
+  st:"Under construction; capacity comes online from 2028. Meta $10B+, ~$14B all-in",sc:"build",
+  note:"The only GW-scale Texas project deliberately sited off ERCOT"},
+ {c:"W2",n:"Microsoft Pecos",gw:2.0,kind:"plan",camp:2,x:301.3,y:361.6,lx:250,ly:384,an:"end",lead:1,
+  reg:"West Texas / Permian",sl:"2 GW · Reeves Co.",loc:"Reeves County, Pecos",
+  op:"Microsoft; power from Chevron + Engine No.1 + GE Vernova",pw:"Project Kilby — 2.67 GW gas on a 20-year agreement, islanded at first",
+  st:"Announced Jun 2026; first power 2028; 5–7 year build",sc:"plan",note:"~$7B on the Chevron side alone"},
+ {c:"W3",n:"GW Ranch",gw:7.65,kind:"plan",camp:2,x:329.9,y:387.8,lx:250,ly:420,an:"end",lead:1,
+  reg:"West Texas / Permian",sl:"7.65 GW gen · Pecos Co.",loc:"Pecos County",
+  op:"Pacifico Energy develops; Amazon acquired the site and contracts the power",
+  pw:"35 gas turbines (7.65 GW permitted) + 1.8 GW storage + 750 MW solar; grid-connects later",
+  st:"Permitted; first 1 GW targeted H1 2027",sc:"plan",note:"7.65 GW is a generation permit, not IT load"},
+ {c:"W4",n:"poolside Project Horizon",gw:2.0,kind:"plan",camp:3,x:342.2,y:422.1,lx:250,ly:456,an:"end",lead:1,
+  reg:"West Texas / Permian",sl:"2 GW · Pecos Co.",loc:"Pecos County, Longfellow Ranch south of Fort Stockton",
+  op:"poolside with CoreWeave as anchor tenant",pw:"Permian natural gas",
+  st:"Phase 1 of 250 MW (expandable to 500 MW) completing Q1 2027",sc:"build",note:"CoreWeave supplying 40,000+ GB300s"},
+ {c:"W5",n:"Texas Critical Data Centers",gw:1.0,kind:"plan",camp:3,x:369.6,y:333.2,lx:250,ly:294,an:"end",lead:1,
+  reg:"West Texas / Permian",sl:"1 GW plan · Ector Co.",loc:"Ector County, Odessa",
+  op:"New Era Helium × Sharon AI joint venture",pw:"On-site natural gas",
+  st:"250 MW first phase; 1 GW+ master plan",sc:"plan",note:""},
+ {c:"W6",n:"Cipher Black Pearl",gw:0.3,kind:"it",camp:3,x:327.6,y:333.3,lx:250,ly:330,an:"end",lead:1,
+  reg:"West Texas / Permian",sl:"300 MW · Winkler Co.",loc:"Winkler County",
+  op:"Cipher Mining; AWS is the tenant",pw:"On-site gas plus grid",
+  st:"15-year, 300 MW gross lease with AWS (~$5.5B); conversion in two phases from Jul 2026",sc:"build",
+  note:"Bitcoin site converted to hyperscale AI"},
+ {c:"W7",n:"IREN Sweetwater",gw:2.0,kind:"plan",camp:3,x:479.6,y:294.3,lx:566,ly:262,an:"start",lead:1,
+  reg:"West Texas / Permian",sl:"2 GW · Nolan Co.",loc:"Nolan County, Sweetwater — 1,800 acres",
+  op:"IREN; Microsoft signed a $9.7B cloud capacity deal",pw:"Direct ERCOT connection, <10 ms to the nearest hyperscaler regions",
+  st:"SW1 1,400 MW energizing 2026; SW2 600 MW in 2027; supports 700,000+ liquid-cooled GPUs",sc:"build",
+  note:"Largest single grid-connected campus in the state"},
+ {c:"W8",n:"Cipher Barber Lake",gw:0.356,kind:"it",camp:3,x:453.8,y:299.4,lx:420,ly:306,an:"end",lead:1,
+  reg:"West Texas / Permian",sl:"356 MW · Mitchell Co.",loc:"Mitchell County, Colorado City",
+  op:"Cipher Mining; Fluidstack tenant with a Google backstop",pw:"Grid",
+  st:"Full-site 300 MW lease plus a 56 MW 10-year add-on; under construction Sep 2026",sc:"build",
+  note:"Google took warrants as part of the backstop"},
+/* ---------- NORTH CENTRAL & DFW ---------- */
+ {c:"N1",n:"Google Haskell County",gw:null,kind:"plan",camp:2,x:518.5,y:247.6,lx:566,ly:226,an:"start",lead:1,
+  reg:"North Central & DFW",sl:"n/d · Haskell Co.",loc:"Haskell County — two campuses",
+  op:"Google",pw:"One campus co-located with solar and storage (Quantum project, operating Jun 2026)",
+  st:"Announced within the $40B package; size not disclosed",sc:"plan",note:""},
+ {c:"N2",n:"Vantage Frontier",gw:1.4,kind:"it",camp:1,x:542.9,y:277.5,lx:460,ly:272,an:"end",lead:1,
+  reg:"North Central & DFW",sl:"1.4 GW · Shackelford Co.",loc:"Shackelford County near Albany — 1,200 acres, 10 buildings",
+  op:"Vantage Data Centers for OpenAI / Stargate",pw:"On-site natural gas microgrid",
+  st:"Started Q3 2025; first building H2 2026; complete Q4 2028 · $25B",sc:"build",
+  note:"Epoch AI tracks this site at 2.0 GW"},
+ {c:"N3",n:"Stargate Abilene",gw:1.2,kind:"it",camp:1,x:521.2,y:290.4,lx:505,ly:356,an:"end",lead:1,
+  reg:"North Central & DFW",sl:"1.2 GW · Taylor Co.",loc:"Taylor County, northeast Abilene (Lancium Clean Campus)",
+  op:"Built by Crusoe, operated by Oracle, used by OpenAI",pw:"On-site gas plus grid",
+  st:"~0.3 GW live (4 of 8 halls); full completion Q4 2026",sc:"live",
+  note:"Blackridge puts the whole campus at 4.5 GW gross"},
+ {c:"N4",n:"Hood County cluster",gw:3.0,kind:"cluster",camp:3,x:626.9,y:299.9,lx:980,ly:268,an:"start",lead:1,
+  reg:"North Central & DFW",sl:"3 GW plan · Hood Co.",loc:"Hood County around Granbury — eight projects over 7,600 acres",
+  op:"Sailfish Investors (Comanche Circle and two others, up to 3 GW combined), Pacifico Energy and others",
+  pw:"Not fully disclosed",st:"Some conditionally approved; Pacifico's Fort Spunky revoked over water",sc:"plan",
+  note:"The bellwether county for local-veto risk"},
+ {c:"N5",n:"DFW metro cluster",gw:0.765,kind:"cluster",camp:3,x:682.1,y:270.2,lx:980,ly:228,an:"start",lead:1,
+  reg:"North Central & DFW",sl:"765 MW building · DFW",loc:"Dallas–Fort Worth: Midlothian and Red Oak (Google), Grand Prairie, Lancaster, Stemmons corridor",
+  op:"Google, Provident × PowerHouse (2 GW / 768 acres, Grand Prairie), STACK, Crow Holdings (245 MW), Aligned, Skybox, DataBank",
+  pw:"Grid with on-site backup",st:"765 MW under construction, 95% preleased; 3.7 GW planned but not started",sc:"live",
+  note:"Ranked the world's largest data center market, Cushman & Wakefield 2026"},
+ {c:"N6",n:"Nexus Hubbard",gw:7.7,kind:"plan",camp:3,x:687.1,y:334.7,lx:980,ly:348,an:"start",lead:1,
+  reg:"North Central & DFW",sl:"7.7 GW plan · Hill Co.",loc:"Hill County, Hubbard (south of DFW, northeast of Waco) — 2,800 acres",
+  op:"Nexus Data Centers develops; Anthropic leases; Google guarantees ~$15B of financing",
+  pw:"612 MW gas plus 152 MW diesel backup",
+  st:"Started late 2025; 500 MW targeted within 2026; 7.7 GW master-plan ceiling",sc:"build",
+  note:"Anthropic signed the lease in March 2026"},
+ {c:"N7",n:"Riot Corsicana",gw:0.4,kind:"it",camp:3,x:705,y:317.2,lx:980,ly:308,an:"start",lead:1,
+  reg:"North Central & DFW",sl:"400 MW · Navarro Co.",loc:"Navarro County, Corsicana — 858 acres",
+  op:"Riot Platforms; AMD is the AI/HPC tenant (50 MW contracted)",pw:"Grid; MOU with Terrestrial Energy on co-located molten-salt reactors",
+  st:"Under construction, completing 2027; 756 MW LOI signed for AI conversion",sc:"build",note:""},
+ {c:"N8",n:"Cipher Riesel",gw:0.5,kind:"plan",camp:3,x:680.3,y:360.7,lx:980,ly:388,an:"start",lead:1,
+  reg:"North Central & DFW",sl:"500 MW · McLennan Co.",loc:"McLennan County, Riesel (southeast of Waco)",
+  op:"Cipher Mining",pw:"Adjacent to a retired coal plant site",st:"Planned; contested locally",sc:"plan",note:""},
+/* ---------- CENTRAL / I-35 ---------- */
+ {c:"C1",n:"Stargate Milam",gw:1.2,kind:"it",camp:1,x:680.9,y:413.7,lx:980,ly:428,an:"start",lead:1,
+  reg:"Central / I-35",sl:"1.2 GW · Milam Co.",loc:"Milam County, Rockdale",
+  op:"SB Energy (SoftBank) builds and operates for OpenAI",pw:"SB Energy self-supply",
+  st:"Steel going up; completion Q4 2028. OpenAI and SoftBank put $1B into SB Energy",sc:"build",note:""},
+ {c:"C2",n:"Riot Rockdale",gw:0.191,kind:"it",camp:3,x:663,y:427,lx:980,ly:468,an:"start",lead:1,
+  reg:"Central / I-35",sl:"191 MW · Milam Co.",loc:"Milam County, Rockdale — the former Alcoa smelter",
+  op:"Riot Platforms; Anthropic is the tenant",pw:"Inherited smelter electrical infrastructure",
+  st:"20-year, $9.1B lease signed Aug 2026",sc:"build",note:"The template for bitcoin-to-AI conversion"},
+ {c:"C3",n:"Austin I-35 cluster",gw:0.84,kind:"cluster",camp:3,x:645.1,y:424.6,lx:566,ly:392,an:"end",lead:1,
+  reg:"Central / I-35",sl:"~840 MW · Williamson Co.",loc:"Round Rock, Hutto, Pflugerville, Taylor, Cedar Creek",
+  op:"Skybox (Hutto, 600 MW), EdgeConneX (Cedar Creek, 240 MW), Sabey (Round Rock), Colovore (Hutto)",
+  pw:"Grid",st:"Austin market ~1.5 GW inventory; construction quadrupled off its 2024 base",sc:"live",
+  note:"Growth is suburban, not central Austin"},
+ {c:"C4",n:"Tesla Cortex",gw:null,kind:"it",camp:2,x:641.4,y:446.4,lx:566,ly:424,an:"end",lead:1,
+  reg:"Central / I-35",sl:"n/d · Travis Co.",loc:"Travis County, Giga Texas, Austin",
+  op:"Tesla",pw:"Plant supply plus Megapack",st:"Operating; Cortex 2 expanding. Size not separately disclosed",sc:"live",
+  note:"Serves FSD and Optimus training"},
+ {c:"C5",n:"Anthropic Cedar Creek",gw:0.71,kind:"plan",camp:3,x:659,y:452.2,lx:980,ly:508,an:"start",lead:1,
+  reg:"Central / I-35",sl:"710 MW gen · Bastrop Co.",loc:"Bastrop County — 2,842 acres",
+  op:"Anthropic",pw:"710 MW behind-the-meter gas plant",
+  st:"In county review; sustained opposition from Lost Pines Watch and neighbors",sc:"plan",
+  note:"Close to homes and schools — elevated approval risk"},
+ {c:"C6",n:"Tract Caldwell Valley",gw:2.0,kind:"plan",camp:3,x:638.2,y:469.6,lx:566,ly:452,an:"end",lead:1,
+  reg:"Central / I-35",sl:"2 GW plan · Caldwell Co.",loc:"Caldwell County, between Austin and San Antonio — 3,000 acres",
+  op:"Tract with Bluebonnet Electric Cooperative and LCRA",pw:"Grid-led; 250 MW contracted",
+  st:"Land closed May 2025; first 250–360 MW targeted Q1 2028",sc:"plan",note:""},
+ {c:"C7",n:"CloudBurst San Marcos",gw:1.2,kind:"plan",camp:3,x:614,y:481,lx:566,ly:496,an:"end",lead:1,
+  reg:"Central / I-35",sl:"1.2 GW plan · Hays Co.",loc:"Hays and Guadalupe counties, San Marcos",
+  op:"CloudBurst with Evolve",pw:"On-site gas — 450,000 MMBtu/day",
+  st:"Under construction; first 50 MW targeted Q4 2026",sc:"build",note:""},
+ {c:"C8",n:"San Antonio metro cluster",gw:null,kind:"cluster",camp:3,x:591,y:501.4,lx:566,ly:534,an:"end",lead:1,
+  reg:"Central / I-35",sl:"n/d · Bexar/Medina Co.",loc:"San Antonio, including the Castroville campus",
+  op:"Microsoft (Castroville and city sites), Stream Data Centers (SA III–VII, 200 MW / $400M), CyrusOne, Vantage",
+  pw:"Grid",st:"Elevated to primary-market status alongside Austin inside 18 months",sc:"live",note:""},
+/* ---------- SOUTH & GULF ---------- */
+ {c:"S1",n:"AWS Wharton",gw:null,kind:"plan",camp:2,x:732.1,y:506,lx:980,ly:548,an:"start",lead:1,
+  reg:"South & Gulf",sl:"n/d · Wharton Co.",loc:"Wharton County, southwest of Houston",
+  op:"AWS",pw:"Not disclosed",st:"Filed; four buildings, ~$1.2B",sc:"plan",note:""},
+ {c:"S2",n:"Hut 8 Beacon Point",gw:1.0,kind:"plan",camp:3,x:641.2,y:611.4,lx:980,ly:620,an:"start",lead:1,
+  reg:"South & Gulf",sl:"1 GW · Nueces Co.",loc:"Nueces County, Robstown — 525 acres",
+  op:"Hut 8; 15-year lease with an undisclosed corporate tenant",pw:"1 GW of utility capacity secured",
+  st:"$9.8B contract value; energization from early 2027, expansions through 2031",sc:"plan",
+  note:"Built to NVIDIA reference architecture"},
+ {c:"S3",n:"Data City, Texas",gw:5.0,kind:"plan",camp:3,x:546.5,y:604.8,lx:500,ly:578,an:"end",lead:1,
+  reg:"South & Gulf",sl:"5 GW plan · Webb Co.",loc:"Webb County near Laredo — 50,000 acres",
+  op:"Energy Abundance Development Corp (formerly Green Hydrogen International)",
+  pw:"Off-grid wind and solar plus gas, shifting to hydrogen from 2028 (Hydrogen City)",
+  st:"Phase 1 of 300 MW and 1M sq ft targeted 2026",sc:"plan",note:"The most aggressive ceiling on the map"}
+];
+
+const NS="http://www.w3.org/2000/svg";
+const R=g=>g==null?5.5:4+7*Math.sqrt(g);
+const CAMP={1:"var(--c1)",2:"var(--c2)",3:"var(--c3)"};
+const CAMPN={1:"OpenAI / Stargate",2:"Hyperscaler self-build",3:"Neocloud / AI lab / independent"};
+const KINDN={it:"Contracted IT load",plan:"Master plan or generation cap",cluster:"Metro / county cluster"};
+const SCN={live:"Operating",build:"Building",plan:"Planned"};
+const KINDS={it:"IT load",plan:"Plan / gen cap",cluster:"Cluster"};
+const svg=document.getElementById("map");
+const el=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const gwT=g=>g==null?"n/d":(g>=1?g+" GW":Math.round(g*1000)+" MW");
+
+const gBase=el("g",{});
+gBase.appendChild(el("path",{d:STATE_D,fill:"var(--land)"}));
+gBase.appendChild(el("path",{d:COUNTY_D,fill:"none",stroke:"var(--county)","stroke-width":".7","vector-effect":"non-scaling-stroke"}));
+gBase.appendChild(el("path",{d:STATE_D,fill:"none",stroke:"var(--ink-3)","stroke-width":"1.4","stroke-linejoin":"round"}));
+svg.appendChild(gBase);
+
+const gReg=el("g",{});
+gReg.appendChild(el("path",{d:"M685,271 L634,443 L591,501",fill:"none",stroke:"var(--ink-3)",
+  "stroke-width":"1.2","stroke-dasharray":"2 5",opacity:".45","stroke-linecap":"round"}));
+REGIONS.forEach(([t,x,y,an])=>{
+  const n=el("text",{x,y,fill:"var(--ink-3)","font-family":"var(--mono)","font-size":"11.5",
+    "letter-spacing":".14em","text-anchor":an,stroke:"var(--surface)","stroke-width":"3","paint-order":"stroke"});
+  n.textContent=t;gReg.appendChild(n);
+});
+svg.appendChild(gReg);
+
+const gCity=el("g",{});
+CITIES.forEach(([t,x,y,an,dx,dy])=>{
+  gCity.appendChild(el("circle",{cx:x,cy:y,r:2,fill:"var(--ink-3)",opacity:".85"}));
+  const n=el("text",{x:x+dx,y:y+dy,"text-anchor":an,fill:"var(--ink-3)","font-size":"10.5",
+    stroke:"var(--surface)","stroke-width":"2.8","paint-order":"stroke"});
+  n.textContent=t;gCity.appendChild(n);
+});
+svg.appendChild(gCity);
+
+const gLead=el("g",{}),gMark=el("g",{}),gLab=el("g",{});
+svg.appendChild(gLead);svg.appendChild(gMark);svg.appendChild(gLab);
+const nodes={};
+
+D.forEach(d=>{
+  const r=R(d.gw),col=CAMP[d.camp];
+  const g=el("g",{class:"mk",tabindex:"0",role:"button","aria-label":d.n+", "+gwT(d.gw),style:"cursor:pointer;outline:none"});
+  if(d.kind==="cluster"){
+    g.appendChild(el("rect",{x:d.x-r*.86,y:d.y-r*.86,width:r*1.72,height:r*1.72,rx:3,
+      fill:col,"fill-opacity":".85",stroke:"var(--surface)","stroke-width":"2"}));
+  }else if(d.kind==="it"){
+    g.appendChild(el("circle",{cx:d.x,cy:d.y,r:r,fill:col,"fill-opacity":".85",
+      stroke:"var(--surface)","stroke-width":"2"}));
+  }else{
+    g.appendChild(el("circle",{cx:d.x,cy:d.y,r:r,fill:col,"fill-opacity":".10",
+      stroke:col,"stroke-width":"2","stroke-dasharray":"5 3.2"}));
+    g.appendChild(el("circle",{cx:d.x,cy:d.y,r:2.2,fill:col}));
+  }
+  gMark.appendChild(g);
+
+  if(d.lead){
+    const dx=d.lx-d.x,dy=d.ly-d.y,L=Math.hypot(dx,dy)||1;
+    const sx=d.x+dx/L*(r+2.5),sy=d.y+dy/L*(r+2.5);
+    const ex=d.lx+(d.an==="end"?5:-5),ey=d.ly+1;
+    gLead.appendChild(el("line",{x1:sx,y1:sy,x2:ex,y2:ey,stroke:col,"stroke-width":".9",opacity:".5"}));
+  }
+
+  const lg=el("g",{});
+  const t1=el("text",{x:d.lx,y:d.ly,"text-anchor":d.an,fill:"var(--ink)","font-family":"var(--cond)",
+    "font-size":"12.5","font-weight":"700",stroke:"var(--surface)","stroke-width":"3.4","paint-order":"stroke"});
+  t1.textContent=d.n;
+  const t2=el("text",{x:d.lx,y:d.ly+12.5,"text-anchor":d.an,fill:"var(--ink-2)","font-family":"var(--mono)",
+    "font-size":"10","stroke":"var(--surface)","stroke-width":"3","paint-order":"stroke"});
+  t2.textContent=d.sl;
+  lg.appendChild(t1);lg.appendChild(t2);
+  gLab.appendChild(lg);
+
+  nodes[d.c]={g,lg,d};
+  const show=e=>tip(d,e);
+  g.addEventListener("mouseenter",show);g.addEventListener("mousemove",show);
+  g.addEventListener("focus",show);
+  g.addEventListener("mouseleave",hide);g.addEventListener("blur",hide);
+});
+
+const tt=document.getElementById("tt"),shell=document.getElementById("mapshell");
+function tip(d,e){
+  tt.innerHTML='<div class="n">'+d.c+' &nbsp;'+d.n+'</div><div class="g">'+gwT(d.gw)+' · '+KINDN[d.kind]+'</div>'+
+    '<dl><dt>Where</dt><dd>'+d.loc+'</dd><dt>Who</dt><dd>'+d.op+'</dd>'+
+    '<dt>Power</dt><dd>'+d.pw+'</dd><dt>Status</dt><dd>'+d.st+'</dd></dl>'+
+    (d.note?'<div class="m">'+d.note+'</div>':'');
+  tt.style.opacity=1;
+  const b=shell.getBoundingClientRect();
+  let px,py;
+  if(e && e.clientX!==undefined){px=e.clientX-b.left+16;py=e.clientY-b.top+14;}
+  else{const r=e.target.getBoundingClientRect();px=r.left-b.left+r.width+10;py=r.top-b.top;}
+  const w=tt.offsetWidth||290,h=tt.offsetHeight||160;
+  if(px+w>b.width-8)px=Math.max(8,px-w-32);
+  if(py+h>shell.scrollHeight-8)py=Math.max(8,py-h-20);
+  tt.style.left=px+"px";tt.style.top=py+"px";
+}
+function hide(){tt.style.opacity=0}
+
+const tb=document.getElementById("tbody");
+let cur=null;
+D.forEach(d=>{
+  if(d.reg!==cur){cur=d.reg;
+    const h=document.createElement("tr");h.className="rgn";
+    h.innerHTML='<td colspan="7">'+cur+'</td>';tb.appendChild(h);}
+  const tr=document.createElement("tr");tr.dataset.camp=d.camp;
+  tr.innerHTML='<td class="cd">'+d.c+'</td>'+
+    '<td class="nm"><span class="cbar" style="background:'+CAMP[d.camp]+'"></span>'+d.n+
+    (d.note?'<span class="sub">'+d.note+'</span>':'')+'</td>'+
+    '<td class="gw">'+(d.gw==null?'<span style="color:var(--ink-3)">n/d</span>':gwT(d.gw))+
+    '<span class="kd">'+KINDS[d.kind]+'</span></td>'+
+    '<td class="loc">'+d.loc+'</td><td class="op">'+d.op+'</td><td class="loc">'+d.pw+'</td>'+
+    '<td><span class="tag '+d.sc+'">'+SCN[d.sc]+'</span><br><span style="color:var(--ink-3);font-size:12px">'+d.st+'</span></td>';
+  tb.appendChild(tr);
+});
+
+const on={1:true,2:true,3:true};
+document.querySelectorAll(".chip[data-camp]").forEach(b=>{
+  b.addEventListener("click",()=>{
+    const c=b.dataset.camp;on[c]=!on[c];b.setAttribute("aria-pressed",on[c]);
+    if(!on[1]&&!on[2]&&!on[3]){on[1]=on[2]=on[3]=true;
+      document.querySelectorAll(".chip[data-camp]").forEach(x=>x.setAttribute("aria-pressed","true"));}
+    D.forEach(d=>{nodes[d.c].g.style.opacity=on[d.camp]?"1":"0.12";
+      nodes[d.c].lg.style.opacity=on[d.camp]?"1":"0.14";});
+    tb.querySelectorAll("tr[data-camp]").forEach(tr=>tr.classList.toggle("dim",!on[tr.dataset.camp]));
+  });
+});
+
+/* ================= SITE NAV ================= */
+const VIEWS={brief:["v-brief"],map:["v-map"],register:["v-register"],
+             notes:["v-notes","v-notes2"],sources:["v-sources"]};
+function show(v){
+  Object.entries(VIEWS).forEach(([k,ids])=>ids.forEach(id=>{
+    const n=document.getElementById(id); if(n) n.hidden=(k!==v);}));
+  document.querySelectorAll(".nv").forEach(b=>b.setAttribute("aria-current",String(b.dataset.view===v)));
+  window.scrollTo({top:0,behavior:"instant"});
+}
+document.querySelectorAll(".nv").forEach(b=>b.addEventListener("click",()=>show(b.dataset.view)));
+
+/* ================= DAILY BRIEF ================= */
+const SEED=/*BRIEF_DATA_START*/{"2026-08-31": {"date": "2026-08-31", "generatedAt": "2026-09-02T02:00:00Z", "items": [{"t": "Host Digital signs $1.25B, 15-year AI data center lease", "s": "HCWC said its Host Digital unit secured a 15-year hyperscale lease valued at about $1.25 billion — another small-cap operator monetising power-ready land rather than building compute itself.", "cat": "leases", "src": "GlobeNewswire", "url": "https://www.globenewswire.com/news-release/2026/08/31/3353118/0/en/hcwc-announces-host-digital-secures-1-25-billion-15-year-ai-data-center-lease.html", "tick": ["HCWC"], "tx": false}]}, "2026-08-28": {"date": "2026-08-28", "generatedAt": "2026-09-02T02:00:00Z", "items": [{"t": "Meta expands Hyperion in Louisiana toward 5 GW", "s": "Meta is scaling its Richland Parish campus into a 5 GW AI supercluster — the largest single-site commitment the company has disclosed, and the template its El Paso and Indiana sites follow.", "cat": "projects", "src": "Data Center Knowledge", "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-august-2026", "tick": ["META"], "tx": false}, {"t": "OpenAI documents 3,210 MW commitment in Georgia", "s": "\"Project Camellia\" in Effingham County, Georgia, carries a documented 3,210 MW commitment, with Georgia Power's load timeline matching. Stargate's centre of gravity is widening beyond Texas.", "cat": "projects", "src": "Data Center Knowledge", "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-august-2026", "tick": [], "tx": false}, {"t": "Google plans 2.7 GW \"Project Tembo\" in Cheyenne", "s": "Wyoming's largest-ever data center at 2.7 GW. Google keeps pairing new campuses with dedicated generation rather than queueing for grid capacity.", "cat": "projects", "src": "Data Center Knowledge", "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-august-2026", "tick": ["GOOGL"], "tx": false}, {"t": "Core Scientific doubles AMD lease to 1.1 GW", "s": "A 15-year agreement covering 1.1 GW of leased AI capacity — the largest miner-to-AI conversion contract signed so far, and further evidence AMD is buying capacity the same way hyperscalers do.", "cat": "leases", "src": "Data Center Knowledge", "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-august-2026", "tick": ["CORZ", "AMD"], "tx": false}, {"t": "Brookfield and NextEra to convert Paducah DOE site into a 1.2 GW AI campus", "s": "A $100 billion program at the former Paducah Gaseous Diffusion Plant in Kentucky, with on-site generation included. Federal brownfield sites are becoming the fastest route to interconnected land.", "cat": "power", "src": "Data Center Knowledge", "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-august-2026", "tick": ["BAM", "NEE"], "tx": false}, {"t": "Amazon's \"Project Eagle\" surfaces in Wharton County, Texas", "s": "A four-building campus southwest of Houston, confirming the AWS filing already on the Texas map. Amazon is now running both grid-connected and off-grid Texas plays at once.", "cat": "projects", "src": "Data Center Knowledge", "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-august-2026", "tick": ["AMZN"], "tx": true}, {"t": "Galaxy breaks out \"Project Merlin\" at McGregor, Texas", "s": "A 500-acre campus north of Austin with 74 MW in phase one and up to 500 MW potential — Galaxy's second Texas site after Helios in Dickens County.", "cat": "projects", "src": "Data Center Knowledge", "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-august-2026", "tick": ["GLXY"], "tx": true}, {"t": "CyrusOne commits $500M to Medina County, Texas", "s": "A 460,000 sq ft build in the San Antonio metro — the colocation half of the Texas story, serving enterprise inference rather than training.", "cat": "projects", "src": "Data Center Knowledge", "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-august-2026", "tick": [], "tx": true}, {"t": "Meta commits $9B+ to a 1 GW campus in Alberta", "s": "Meta's first Canadian AI campus, in Sturgeon County, with 3,000 workers at peak construction. Power cost and permitting speed are pulling capacity across the border.", "cat": "projects", "src": "Data Center Knowledge", "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-august-2026", "tick": ["META"], "tx": false}]}, "2026-08-26": {"date": "2026-08-26", "generatedAt": "2026-09-02T02:00:00Z", "items": [{"t": "Starcloud raises $250M at a $2.3B valuation for orbital data centers", "s": "The Series A extension funds a plan for 20 GW across 88,000 satellites. Worth tracking as a signal of how far capital will chase power constraints, not as near-term supply.", "cat": "markets", "src": "Baxtel", "url": "https://baxtel.com/news/top-data-center-news-for-24th-29th-august-2026", "tick": [], "tx": false}, {"t": "Schwarz Group commits €5.6B to a German campus scaling to 1 GW", "s": "240 MW at Dummersdorf now, 1 GW by 2045, wind-powered with a possible 380 kV connection. European sovereign-AI capacity is being funded by retailers and industrials, not just clouds.", "cat": "projects", "src": "Baxtel", "url": "https://baxtel.com/news/top-data-center-news-for-24th-29th-august-2026", "tick": [], "tx": false}]}, "2026-08-17": {"date": "2026-08-17", "generatedAt": "2026-09-02T02:00:00Z", "items": [{"t": "Nvidia backstops $105B of financing for OpenAI's Ohio campus", "s": "Nvidia is underwriting the debt behind the buildout that buys its own chips. The circularity is now large enough to be a systemic question, not a talking point.", "cat": "markets", "src": "CNBC", "url": "https://www.cnbc.com/2026/08/17/nvidia-financing-open-ai-data-center-ohio.html", "tick": ["NVDA"], "tx": false}]}, "2026-08-06": {"date": "2026-08-06", "generatedAt": "2026-09-02T02:00:00Z", "items": [{"t": "NRG nears a 1.2 GW gas deal with an unnamed hyperscaler in Texas", "s": "Roughly $3.2 billion for the first phase (~$2,670/kW), minimum 15-year term with a parent guarantee, 95%+ of cash flow from capacity payments, delivery late 2029, expandable to 2.4 GW. This is what a merchant generator's AI contract now looks like.", "cat": "power", "src": "Utility Dive", "url": "https://www.utilitydive.com/news/nrg-nears-12-gw-hyperscaler-deal-amid-texas-data-center-pause/827212/", "tick": ["NRG"], "tx": true}]}, "2026-08-05": {"date": "2026-08-05", "generatedAt": "2026-09-02T02:00:00Z", "items": [{"t": "BNEF: the Texas audit could delay 49.8 GW and cost projects $8–15B", "s": "That is almost 20% of the 253 GW US pipeline. BNEF puts the cumulative cost at just over $8B by Q1 2027 on a 60%-AI assumption, ~$15B if all delayed capacity is AI — and warns the pause could run into the 2027 legislative session.", "cat": "power", "src": "POWER Magazine", "url": "https://www.powermag.com/texas-audit-could-delay-49-8-gw-of-data-center-load-cost-projects-up-to-15-billion-bnef-warns/", "tick": [], "tx": true}, {"t": "ERCOT queue hits ~474 GW; Batch Zero study delayed", "s": "About 90% of new interconnection requests are data centers, more than five times ERCOT's record peak demand. ERCOT missed the August 7 Batch Zero deadline and sought a good-cause exemption from the PUCT.", "cat": "power", "src": "Utility Dive", "url": "https://www.utilitydive.com/news/texas-hits-pause-data-center-interconnections/827046/", "tick": [], "tx": true}]}, "2026-08-03": {"date": "2026-08-03", "generatedAt": "2026-09-02T02:00:00Z", "items": [{"t": "Abbott orders a statewide audit of every data center in the ERCOT queue", "s": "The directive covers tax incentives, public financial assistance, electricity demand, on-site generation, water sourcing and reuse, cooling, community impact and project ownership. ERCOT paused interconnection processing in response. No resolution timeline was given.", "cat": "power", "src": "Texas Tribune", "url": "https://www.texastribune.org/2026/08/03/texas-data-center-project-audit-greg-abbott/", "tick": [], "tx": true}]}}/*BRIEF_DATA_END*/;
+const CATS={projects:{l:"Projects",c:"var(--c2)"},leases:{l:"Leases",c:"var(--c3)"},
+            power:{l:"Power & policy",c:"var(--c1)"},markets:{l:"Markets",c:"var(--ink-3)"}};
+let BRIEFS=Object.assign({},SEED), FILTER="all";
+const feed=document.getElementById("feed");
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const DAYFMT=(d)=>{const p=String(d).split("-");
+  if(p.length!==3) return String(d);
+  const dt=new Date(Date.UTC(+p[0],+p[1]-1,+p[2]));
+  return dt.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"});};
+
+function renderFeed(){
+  const days=Object.keys(BRIEFS).sort().reverse();
+  let html="", shown=0;
+  days.forEach(k=>{
+    const day=BRIEFS[k]; if(!day||!Array.isArray(day.items)) return;
+    const items=day.items.filter(it=>FILTER==="all"||(FILTER==="tx"?it.tx===true:it.cat===FILTER));
+    if(!items.length) return;
+    shown+=items.length;
+    html+='<div class="day"><div class="dayhead"><h3>'+esc(DAYFMT(k))+'</h3>'+
+          '<span class="cnt">'+items.length+(items.length===1?" item":" items")+'</span></div>';
+    items.forEach(it=>{
+      const cat=CATS[it.cat]||{l:it.cat||"Item",c:"var(--ink-3)"};
+      const ticks=(it.tick||[]).map(x=>'<span class="tk">'+esc(x)+'</span>').join(" ");
+      html+='<article class="item"><div class="cat"><b><i style="background:'+cat.c+'"></i>'+esc(cat.l)+'</b>'+
+            (it.tx?'<span class="txchip">TEXAS</span>':'')+'</div><div>'+
+            '<h4>'+esc(it.t)+'</h4><p>'+esc(it.s)+'</p><div class="meta">'+
+            (it.url?'<a href="'+esc(it.url)+'" target="_blank" rel="noopener">'+esc(it.src||"source")+' \u2197</a>':'<span>'+esc(it.src||"")+'</span>')+
+            (ticks?'<span>'+ticks+'</span>':'')+'</div></div></article>';
+    });
+    html+="</div>";
+  });
+  feed.innerHTML = shown ? html :
+    '<div class="empty">Nothing in this filter yet. The nightly job files items under Projects, Leases, Power &amp; policy and Markets.</div>';
+}
+function setStatus(){
+  const days=Object.keys(BRIEFS).sort().reverse();
+  const n=days.reduce((a,k)=>a+((BRIEFS[k]&&BRIEFS[k].items)||[]).length,0);
+  document.querySelector("#feedstatus .pulse").className="pulse";
+  document.getElementById("feedtext").textContent =
+    n+" items \u00b7 latest entry "+(days[0]||"—");
+}
+document.querySelectorAll(".fb").forEach(b=>b.addEventListener("click",()=>{
+  FILTER=b.dataset.f;
+  document.querySelectorAll(".fb").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  renderFeed();
+}));
+renderFeed(); setStatus();
+
+/* ---------- capacity by region, split by measurement basis ---------- */
+(function(){
+  const rows=document.getElementById("basisrows"); if(!rows) return;
+  const agg={};
+  D.forEach(d=>{ const a=agg[d.reg]||(agg[d.reg]={it:0,plan:0,cluster:0,n:0,nd:0});
+    a.n++; if(d.gw==null){a.nd++;return;} a[d.kind]+=d.gw; });
+  const order=[]; D.forEach(d=>{ if(order.indexOf(d.reg)<0) order.push(d.reg); });
+  const max=Math.max.apply(null,order.map(r=>agg[r].it+agg[r].plan+agg[r].cluster));
+  const f=v=>v.toFixed(1);
+  rows.innerHTML=order.map(r=>{
+    const a=agg[r], tot=a.it+a.plan+a.cluster, w=v=>(v/max*100).toFixed(2)+"%";
+    const seg=(cls,v,lbl)=>v>0?'<div class="seg '+cls+'" style="width:'+w(v)+'" title="'+lbl+' '+f(v)+' GW"></div>':"";
+    return '<div class="brow"><div class="rl">'+r+'</div>'+
+      '<div class="bar" role="img" aria-label="'+r+': '+f(a.it)+' GW contracted IT load, '+f(a.plan)+
+      ' GW master plan or generation cap, '+f(a.cluster)+' GW cluster">'+
+      seg("it",a.it,"Contracted IT load")+seg("plan",a.plan,"Master plan / generation cap")+
+      seg("cl",a.cluster,"Cluster")+'</div>'+
+      '<div class="rt">'+f(tot)+' GW</div></div>';
+  }).join("");
+})();
+</script>
+
+</body>
+</html>
